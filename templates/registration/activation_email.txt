@@ -1,0 +1,5 @@
+Please click here to activate your account: 
+{{ site }}/accounts/activate/{{activation_key}}/
+
+If the link does not work then copy and paste the text below:
+{{activation_key}}

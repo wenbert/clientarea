@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Hello Subsea client.</h2>
+Reading path: {{location}}
+{{files}}
+{% if files %}
+    {% for file in files %}
+        {{ file }}
+    {% endfor %}
+{% else %}
+        <tr><td>No files available.</td></tr>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Activate{% endblock %}
+{% block page_name %}Activate your account{% endblock %}
+{% block body %}
+Hello {{ account }}!<br/>
+Check your email to confirm the activation. There are {{ expiration_days  }} days left to do it.
+{% endblock %}

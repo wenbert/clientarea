@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Info for {{ profile }} </h1>
+<p>
+	<strong>Name:</strong> {{profile.firstname}} {{profile.lastname}}
+</p>
+<p>
+	<strong>Address:</strong> {{profile.address1}} {% if profile.address2 %}, {{profile.address2}} {% endif %}
+</p>
+<p>
+	<strong>Province:</strong> {{profile.province}}
+</p>
+<p>
+	<strong>City:</strong> {{profile.city}}
+</p>
+<p>
+	<strong>Zipcode:</strong> {{profile.zipcode}}
+</p>
+{% if profile.user == user %}
+<p>
+	<a href="/profiles/edit">Edit</a>
+</p>
+{% endif %}
+
+{% endblock %}
