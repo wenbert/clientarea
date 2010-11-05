@@ -12,13 +12,17 @@ def home(request):
     
 def browse_files(request):
     data = {}
-    
     path = settings.APPLICATION_STORAGE
-    contents=os.listdir(path) #contents of the current directory
-    files =[]
-    directories=[]
+    contents = os.listdir(path) #contents of the current directory
+    files = []
+    directories= []
     for i in contents:
         #files.append(i)
+        """
+        os.path.isfile(i) does not work properly?
+        Reading path: /home/subsea/application/../application/home 
+            ['__init__.py', '__init__.pyc']
+        """
         if os.path.isfile(i):
             files.append(i)
         elif os.path.isdir(i):
@@ -31,4 +35,3 @@ def browse_files(request):
     
     return render_to_response("home/browse_files.html",
                           data, context_instance=RequestContext(request))
-                          
