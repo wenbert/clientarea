@@ -1,7 +1,7 @@
 import os
 import sys
 
-sys.path.append('/home/subsea/application')
+sys.path.append('/home/subsea/clientarea')
 
 os.environ['PYTHON_EGG_CACHE'] = '/home/subsea/.python-egg'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'

@@ -115,4 +115,4 @@ IMAGES_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/images')
 JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/js')
 CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/css')
 
-APPLICATION_STORAGE = os.path.join(os.path.dirname(__file__), 'storage')
+APPLICATION_STORAGE = '/home/subsea/clientarea/storage'
