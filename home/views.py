@@ -13,9 +13,11 @@ def home(request):
 def browse_files(request):
     data = {}
     path = settings.APPLICATION_STORAGE
+
     contents = os.listdir(path) #contents of the current directory
     files = []
     directories= []
+    
     for i in contents:
         #files.append(i)
         """
@@ -23,9 +25,11 @@ def browse_files(request):
         Reading path: /home/subsea/application/../application/home 
             ['__init__.py', '__init__.pyc']
         """
-        if os.path.isfile(i):
+        if os.path.isfile(os.path.join(path, i)):
+        #if os.path.isfile(i):
             files.append(i)
-        elif os.path.isdir(i):
+        #elif os.path.isdir(i):
+        if os.path.isdir(os.path.join(path, i)):
             directories.append(i)
     data = {
         "location": path,

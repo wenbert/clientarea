@@ -1,13 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Hello Subsea client.</h2>
-Reading path: {{location}}
-{{files}}
+<h2>Reading path: {{location}}</h2>
+<hr/>
+<h3>Files</h3>
 {% if files %}
+    <ul>
     {% for file in files %}
-        {{ file }}
+        <li>{{ file }}</li>
     {% endfor %}
+    </ul>
 {% else %}
-        <tr><td>No files available.</td></tr>
-    {% endif %}
+        No files available.
+{% endif %}
+<h3>Directories</h3>
+{% if directories %}
+    <ul>
+    {% for x in directories %}
+        <li>{{ x }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+        No directory available.
+{% endif %}
 {% endblock %}
