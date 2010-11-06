@@ -51,8 +51,11 @@ def browse_files(request):
                           
 @login_required
 def download(request,groupname,filename):
-    
-    #CHECK IF CURRENT LOGGED IN USER IS IN THE GROUPNAME! IF NOT ERROR!
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass
     
     path = settings.APPLICATION_STORAGE
     filename = os.path.join(groupname,filename)
