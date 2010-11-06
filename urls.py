@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^$', home),
     (r'^home/browse_files', browse_files),
+    
+    (r'^home/download/(?P<filename>.*)$', download),
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('registration.backends.default.urls')),
     #(r'^accounts/', include('accounts.urls')),
