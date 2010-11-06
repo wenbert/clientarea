@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from registration import signals
 
 class UserProfile(models.Model):
@@ -38,7 +38,6 @@ def create_user_profile(sender, **kwargs):
     user.last_name = last_name
     user.save()
     profile.save()
-
-
+    
 signals.user_registered.connect(create_user_profile)
 

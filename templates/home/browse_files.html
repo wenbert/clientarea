@@ -5,8 +5,10 @@
 <h3>Files</h3>
 {% if files %}
     <ul>
-    {% for file in files %}
-        <li><a href="/home/download/{{ file|urlencode }}">{{ file }}</a></li>
+    {% for group in user.groups.all %}
+        {% for file in files %}
+            <li><a href="/home/download/{{group}}/{{ file|urlencode }}">{{ file }}</a></li>
+        {% endfor %}
     {% endfor %}
     </ul>
 {% else %}
@@ -22,4 +24,6 @@
 {% else %}
         No directory available.
 {% endif %}
+groups:
+{{groups}}
 {% endblock %}
