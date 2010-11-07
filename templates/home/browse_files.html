@@ -2,28 +2,21 @@
 {% block content %}
 <h2>Reading path: {{location}}</h2>
 <hr/>
-<h3>Files</h3>
-{% if files %}
+{{groupname}}
+{% if files or directories%}
     <ul>
-    {% for group in user.groups.all %}
-        {% for file in files %}
-            <li><a href="/home/download/{{group}}/{{ file|urlencode }}">{{ file }}</a></li>
-        {% endfor %}
+    {% for directory in directories %}
+            <li><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">[dir] {{ directory.name }}</a></li>
     {% endfor %}
     </ul>
-{% else %}
-        No files available.
-{% endif %}
-<h3>Directories</h3>
-{% if directories %}
     <ul>
-    {% for group in user.groups.all %}
-        {% for directory in directories %}
-            <li><a href="/home/browse_files/{{group}}/?dir={{ directory|urlencode }}">{{ directory }}</a></li>
-        {% endfor %}
+    {% for file in files %}
+            <li><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></li>
     {% endfor %}
     </ul>
+    
 {% else %}
-        No directory available.
+        No files/directories available.
 {% endif %}
+
 {% endblock %}

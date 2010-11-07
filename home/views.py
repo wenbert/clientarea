@@ -15,7 +15,7 @@ def home(request):
                           data, context_instance=RequestContext(request))
 
 @login_required    
-def browse_files(request):
+def browse_files(request,groupname):
     data = {}
     user = request.user
     
@@ -24,35 +24,42 @@ def browse_files(request):
     files = []
     directories= []
     
-    ugroups = user.groups.all()
-    
-    for ugroup in ugroups:
-        grouppath = os.path.join(path, str(ugroup)) #join group
-        if request.GET.get('dir'):
-            grouppath = os.path.join(grouppath,request.GET.get('dir'))
-    
         
-        contents = os.listdir(grouppath) #contents of the current directory
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass
+    
+    grouppath = os.path.join(path, str(groupname)) #join group
+    
+    if request.GET.get('dir'):
+        grouppath = os.path.join(grouppath,str(request.GET.get('dir')))
+        if settings.APPLICATION_STORAGE not in grouppath: #make sure that grouppath is inside the APPLICATION_STORAGE
+            return render_to_response('404.html')
+        elif "../" in grouppath: #make sure not to allow relative paths, etc.
+            return render_to_response('404.html')
+    
+    if os.path.exists(str(grouppath)):
+        contents = os.listdir(str(grouppath)) #contents of the current directory
         for i in contents:
-            #files.append(i)
             if os.path.isfile(os.path.join(grouppath, i)):
-            #if os.path.isfile(i):
                 if request.GET.get('dir'):
-                    files.append(os.path.join(request.GET.get('dir'),i))
+                    files.append({'name':i,'path':os.path.join(request.GET.get('dir'),i),'group':groupname})
                 else:
-                    files.append(i)
-            #elif os.path.isdir(i):
+                    files.append({'name':i,'path':i,'group':groupname})
             if os.path.isdir(os.path.join(grouppath, i)):
                 if request.GET.get('dir'):
-                    directories.append(os.path.join(request.GET.get('dir'),i))
+                    directories.append({'name':i,'path':os.path.join(request.GET.get('dir'),i),'group':groupname})
                 else:
-                    directories.append(i)
-            
+                    directories.append({'name':i,'path':i,'group':groupname})
+        
     data = {
         "location": path,
         "files": files,
         "directories": directories,
-        "groups": ugroups,
+        "grouppath": grouppath,
+        "groupname": groupname,
     }
     
     return render_to_response("home/browse_files.html",
