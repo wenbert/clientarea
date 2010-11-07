@@ -1,6 +1,6 @@
 # Django settings for subsea project.
 import os.path
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (

@@ -28,16 +28,25 @@ def browse_files(request):
     
     for ugroup in ugroups:
         grouppath = os.path.join(path, str(ugroup)) #join group
+        if request.GET.get('dir'):
+            grouppath = os.path.join(grouppath,request.GET.get('dir'))
+    
+        
         contents = os.listdir(grouppath) #contents of the current directory
         for i in contents:
             #files.append(i)
             if os.path.isfile(os.path.join(grouppath, i)):
             #if os.path.isfile(i):
-                files.append(i)
+                if request.GET.get('dir'):
+                    files.append(os.path.join(request.GET.get('dir'),i))
+                else:
+                    files.append(i)
             #elif os.path.isdir(i):
             if os.path.isdir(os.path.join(grouppath, i)):
-                directories.append(i)
-    
+                if request.GET.get('dir'):
+                    directories.append(os.path.join(request.GET.get('dir'),i))
+                else:
+                    directories.append(i)
             
     data = {
         "location": path,
@@ -48,7 +57,7 @@ def browse_files(request):
     
     return render_to_response("home/browse_files.html",
                           data, context_instance=RequestContext(request))
-                          
+    
 @login_required
 def download(request,groupname,filename):
     custgroup = Group.objects.get(name=groupname)

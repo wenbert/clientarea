@@ -11,7 +11,7 @@
         <ul>
         {% if user.is_authenticated %}
             <li><a href="/">Home</a></li>
-            <li>Logged in as: <b><a href="/profiles/{{user.username}}">{{ user.username }}</a></b> {{user.groups.all}}</li>
+            <li>Logged in as: <b><a href="/profiles/{{user.username}}">{{ user.username }}</a></b></li>
             <li><a href="/home/browse_files">Your Files</a></li>
             <li><a href="/accounts/logout">Logout</a></li>
             <li><a href="/accounts/password/change">Change Password</a></li>

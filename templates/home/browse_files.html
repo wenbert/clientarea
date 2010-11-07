@@ -17,13 +17,13 @@
 <h3>Directories</h3>
 {% if directories %}
     <ul>
-    {% for x in directories %}
-        <li>{{ x }}</li>
+    {% for group in user.groups.all %}
+        {% for directory in directories %}
+            <li><a href="/home/browse_files/{{group}}/?dir={{ directory|urlencode }}">{{ directory }}</a></li>
+        {% endfor %}
     {% endfor %}
     </ul>
 {% else %}
         No directory available.
 {% endif %}
-groups:
-{{groups}}
 {% endblock %}
