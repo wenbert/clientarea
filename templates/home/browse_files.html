@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Reading path: {{location}}</h2>
-<hr/>
-{{groupname}}
+
+<div style="border: 1px solid #ccc;"> Location: 
+/ <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
+{% for crumb in crumbs %}
+    {% ifnotequal  crumb.name  'None'  %}
+        <a href="/home/browse_files/{{groupname}}/?dir={{crumb.path|urlencode }}">{{crumb.name}}</a> 
+        {%ifnotequal url_dir ''%}
+        /
+        {% endifnotequal  %}
+    {% endifnotequal  %}
+{% endfor %}
+</div>
 {% if files or directories%}
     <ul>
     {% for directory in directories %}
