@@ -64,7 +64,7 @@ def browse_files(request,groupname):
     crumbs = []
     for i in range(len(url_pieces)):
         #url_pieces[i] += str(url_pieces[i-1]),str(os.pathsep),str(url_pieces[i])
-        crumbs.append({'name':url_pieces[i],'path':str(url_pieces[0:i]).replace(" ","").replace("[","").replace("]","").replace("'","").replace(",","/")})
+        crumbs.append({'name':url_pieces[i],'path':str(url_pieces[0:i+1]).replace(" ","").replace("[","").replace("]","").replace("'","").replace(",","/")})
         #crumbs.append({'path': url_pieces[0:i]})
     
     data = {
