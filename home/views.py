@@ -64,7 +64,7 @@ def browse_files(request,groupname):
                     if os.path.exists(str(readme_file)):
                         readme = open(readme_file).read()
                     else:
-                        readme = 'File has no description.'
+                        readme = '-'
                 else:
                     pass
                         
@@ -91,7 +91,7 @@ def browse_files(request,groupname):
                 if os.path.exists(str(readme)):
                     readme = open(readme).read()
                 else:
-                    readme = 'Directory has no description.'
+                    readme = '-'
                     
                 #append to directories
                 directories.append({'name':i,\
