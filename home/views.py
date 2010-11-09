@@ -78,7 +78,7 @@ def browse_files(request,groupname):
                                             os.path.getsize(complete_filepath)\
                                         ),\
                                   'last_modified': \
-                                        show_time(\
+                                        pretty_date(\
                                             os.path.getctime(complete_filepath)\
                                         ),\
                                   'group':groupname,
@@ -101,7 +101,7 @@ def browse_files(request,groupname):
                                         os.path.getsize(complete_filepath)\
                                     ),\
                                 'last_modified': \
-                                    show_time(\
+                                    pretty_date(\
                                         os.path.getctime(complete_filepath)\
                                     ),\
                                'group':groupname,
@@ -190,7 +190,9 @@ def pretty_date(time=False):
         diff = now - datetime.fromtimestamp(time)
     elif not time:
         diff = now - now
-    
+    else:
+        diff = now - datetime.fromtimestamp(time)
+        
     second_diff = diff.seconds
     day_diff = diff.days
 
