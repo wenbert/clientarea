@@ -116,3 +116,6 @@ JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/js')
 CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/css')
 
 APPLICATION_STORAGE = '/home/subsea/clientarea/storage'
+README_FILE = 'README'
+README_FILE_EXT = '.README'
+TIME_FORMAT = '%a, %d %b %Y %H:%M:%S'

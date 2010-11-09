@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-
+<pre>
+    {{test}}
+    {{test2}}
+</pre>
 <div style="border: 1px solid #ccc;"> Location: 
 / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
 {% for crumb in crumbs %}
@@ -12,15 +15,33 @@
     {% endifnotequal  %}
 {% endfor %}
 </div>
+<div style="color: red">
+    TODO: <br/>
+    Read meta file inside current directory. Read also the meta files inside the directories displayed in current view.<br/>
+    Read first few lines of the latest updated READMEs. Do this recursively. So that we can have a "Latest Updates" section.
+</div>
 {% if files or directories%}
     <ul>
     {% for directory in directories %}
-            <li><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">[dir] {{ directory.name }}</a></li>
+            <li>
+                <ul>
+                    <li><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">[dir] {{ directory.name }}</a></li>
+                    <li>Last Modified: {{directory.last_modified}}</li>
+                    <li>{{directory.readme}}</li>
+                </ul>
+            </li>
     {% endfor %}
     </ul>
     <ul>
     {% for file in files %}
-            <li><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></li>
+            <li>
+                <ul>
+                    <li><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></li>
+                    <li>Size: {{file.size}}</li>
+                    <li>Last Modified: {{file.last_modified}}</li>
+                    <li>{{file.readme}}</li>
+                </ul>
+            </li>
     {% endfor %}
     </ul>
     
