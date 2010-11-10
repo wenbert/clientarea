@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
+<div style="color: red">
+    TODO: <br/>
+    Read first few lines of the latest updated READMEs. Do this recursively. So that we can have a "Latest Updates" section.
+</div>
 <pre>
     Test Area
 </pre>
@@ -22,34 +26,38 @@
         This directory has no description.
     {% endif %}
 </div>
-<div style="color: red">
-    TODO: <br/>
-    Read first few lines of the latest updated READMEs. Do this recursively. So that we can have a "Latest Updates" section.
-</div>
+
 {% if files or directories%}
-    <ul>
+    <table border=1>
+    <tr>
+        <th>Directory Name</th>
+        <th>Last Modified</th>
+        <th>Description</th>
+    </tr>
     {% for directory in directories %}
-            <li>
-                <ul>
-                    <li><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">[dir] {{ directory.name }}</a></li>
-                    <li>Last Modified: {{directory.last_modified}}</li>
-                    <li>{{directory.readme}}</li>
-                </ul>
-            </li>
+    <tr>
+        <td><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">[dir] {{ directory.name }}</a></td>
+        <td>{{directory.last_modified}}</td>
+        <td>{{directory.readme}}</td>
+    </tr>
     {% endfor %}
-    </ul>
-    <ul>
+    </table>
+    <table border=1>
+    <tr>
+        <th>File Name</th>
+        <th>Size</th>
+        <th>Last Modified</th>
+        <th>Description</th>
+    </tr>
     {% for file in files %}
-            <li>
-                <ul>
-                    <li><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></li>
-                    <li>Size: {{file.size}}</li>
-                    <li>Last Modified: {{file.last_modified}}</li>
-                    <li>{{file.readme}}</li>
-                </ul>
-            </li>
+    <tr>
+        <td><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></td>
+        <td>{{file.size}}</td>
+        <td>{{file.last_modified}}</td>
+        <td>{{file.readme}}</td>
+    </tr>
     {% endfor %}
-    </ul>
+    </table>
     
 {% else %}
         No files/directories available.
