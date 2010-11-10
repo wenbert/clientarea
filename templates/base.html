@@ -1,13 +1,23 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
 <html lang="en">
-<head>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Subsea: {% block title %}{% endblock %}</title>
+
+    <!-- Framework CSS -->
+    <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]><link rel="stylesheet" href="../blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+
 </head>
 <body>
-    <div>
+<div class="container">
+    <div class="span-24 last">
         <h1>Client Portal</h1>
     </div>
-    <div>
+    <div class="span-24 last">
         <ul>
         {% if user.is_authenticated %}
             <li><a href="/">Home</a></li>
@@ -21,9 +31,9 @@
         {% endif %}
         </ul>
     </div>
-    <div>
+    <div class="span-24 last">
         {% if user.groups.all %}
-        You belong to: 
+        Your directories: 
         <ul>
         {% for group in user.groups.all %}
             <li><a href="/home/browse_files/{{group}}">{{group}}</a></li>
@@ -33,9 +43,12 @@
         You do not belong to any group yet. Please contact the site administrator.
         {% endif %}
     </div>
+    <div class="span-24 last">
     {% block content %}{% endblock %}
     {% block footer %}
+    </div>
     <p>&copy; Copyright 2010. Subsea International / Norwegian Pacific Offshore</p>
     {% endblock %}
+</div>
 </body>
 </html>

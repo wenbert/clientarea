@@ -8,6 +8,8 @@ from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from contextlib import closing
+from zipfile import ZipFile, ZIP_DEFLATED
 
 def home(request):
     data = {}    
@@ -16,6 +18,10 @@ def home(request):
 
 @login_required    
 def browse_files(request,groupname):
+    """
+    Browse a directory. This can go browse the sub-directories using the
+    ?dir=/path/to/subdirectory
+    """
     path = settings.APPLICATION_STORAGE
     data = {}
     files = []
@@ -29,12 +35,15 @@ def browse_files(request,groupname):
          return render_to_response('404.html')
     else:
         pass
-
+        
     #complete path of the directory with the groupname
     grouppath = os.path.join(path, str(groupname)) 
     
+    #if dir in the URL is set, append the dir from the GET to the grouppath
     if url_dir:
         grouppath = os.path.join(grouppath,str(url_dir))
+        #some security checks so that users will not be able 
+        #to "navigate" out of their folders
         if settings.APPLICATION_STORAGE not in grouppath: 
             #make sure that grouppath is inside the APPLICATION_STORAGE
             return render_to_response('404.html')
@@ -43,8 +52,7 @@ def browse_files(request,groupname):
             return render_to_response('404.html')
     
     if os.path.exists(str(grouppath)):
-        
-        #README for the current directory
+        #look for README for the current directory
         readme_for_current_dir = ""
         readme_for_current_dir_path = os.path.join(grouppath,"README")
         if os.path.exists(str(readme_for_current_dir_path)):
@@ -52,7 +60,9 @@ def browse_files(request,groupname):
         else:
             readme_for_current_dir = "This directory has no description."
         
-        contents = os.listdir(str(grouppath)) #contents of the current directory
+        #contents of the current directory. If there was a path dir in the 
+        #dir varialbe in GET, grouppath should now contain that path
+        contents = os.listdir(str(grouppath)) 
         for i in contents:
             complete_filepath = os.path.join(grouppath, i)
             
@@ -68,7 +78,7 @@ def browse_files(request,groupname):
                 #get current readme for each file displayed
                 readme_file = "%s%s"\
                               %(complete_filepath,settings.README_FILE_EXT)
-
+                              
                 if (readme_file):
                     readme = os.path.join(grouppath, i)
                     if os.path.exists(str(readme_file)):
@@ -78,7 +88,6 @@ def browse_files(request,groupname):
                 else:
                     pass
                         
-                
                 #append to file[], but do not include README
                 if i != settings.README_FILE and os.path.splitext(i)[-1] != settings.README_FILE_EXT:
                     files.append({'name':i,\
@@ -118,7 +127,9 @@ def browse_files(request,groupname):
                                'group':groupname,
                                'readme':readme,
                             })
-    
+    else:
+        pass
+        
     """
     Breadcrumbs
     """
@@ -140,6 +151,7 @@ def browse_files(request,groupname):
         "files": files,
         "directories": directories,
         "grouppath": grouppath,
+        "current_directory": os.path.basename(grouppath),
         "groupname": groupname,
         "url_pieces": url_pieces,
         "crumbs": crumbs,
@@ -149,9 +161,13 @@ def browse_files(request,groupname):
     
     return render_to_response("home/browse_files.html",
                           data, context_instance=RequestContext(request))
-    
+
+
 @login_required
 def download(request,groupname,filename):
+    """
+    Download a file
+    """
     custgroup = Group.objects.get(name=groupname)
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
@@ -171,6 +187,83 @@ def download(request,groupname,filename):
                                        % smart_str(filename)
 
     return response
+    
+@login_required
+def download_dir_as_zip(request,groupname):
+    """
+    Download a directory or a file as zip.
+    """
+    path = settings.APPLICATION_STORAGE    
+    url_dir = request.GET.get('dir')    
+    #check if group of request.user
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass
+        
+    #complete path of the directory with the groupname
+    grouppath = os.path.join(path, str(groupname)) 
+    
+    #if dir in the URL is set, append the dir from the GET to the grouppath
+    if url_dir:
+        grouppath = os.path.join(grouppath,str(url_dir))
+        #some security checks so that users will not be able 
+        #to "navigate" out of their folders
+        if settings.APPLICATION_STORAGE not in grouppath: 
+            #make sure that grouppath is inside the APPLICATION_STORAGE
+            return render_to_response('404.html')
+        elif "../" in grouppath: 
+            #make sure not to allow relative paths, etc.
+            return render_to_response('404.html')
+            
+    temp = tempfile.TemporaryFile()
+    archivename = os.path.basename(grouppath) + ".zip" # archive in the curdir
+    #zipdir(grouppath, archivename)
+    assert os.path.isdir(grouppath)
+    with closing(ZipFile(temp, "w", ZIP_DEFLATED)) as z:
+        for root, dirs, files in os.walk(grouppath):
+            #NOTE: ignore empty directories
+            for fn in files:
+                absfn = os.path.join(root, fn)
+                zfn = absfn[len(grouppath)+len(os.sep):] #XXX: relative path
+                z.write(absfn, zfn)
+            
+    wrapper = FileWrapper(temp)
+    response = HttpResponse(wrapper, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=' + archivename
+    response['Content-Length'] = temp.tell()
+    temp.seek(0)
+    return response
+
+
+@login_required
+def download_file_as_zip(request,groupname,filename):
+    """
+    Download a file as zipfile.
+    """
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass
+    
+    path = settings.APPLICATION_STORAGE
+    filename = os.path.join(groupname,filename)
+    filepath = os.path.join(path,filename)
+    
+    temp = tempfile.TemporaryFile()
+    archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+    archive.write(filepath, os.path.basename(filename))
+    archive.close()
+    wrapper = FileWrapper(temp)
+    response = HttpResponse(wrapper, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=%s.zip'\
+                                      %(os.path.basename(filename))
+    response['Content-Length'] = temp.tell()
+    temp.seek(0)
+    return response
+
 
 def convert_bytes(bytes):
     bytes = float(bytes)
