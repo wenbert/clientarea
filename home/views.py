@@ -41,8 +41,17 @@ def browse_files(request,groupname):
         elif "../" in grouppath: 
             #make sure not to allow relative paths, etc.
             return render_to_response('404.html')
-
+    
     if os.path.exists(str(grouppath)):
+        
+        #README for the current directory
+        readme_for_current_dir = ""
+        readme_for_current_dir_path = os.path.join(grouppath,"README")
+        if os.path.exists(str(readme_for_current_dir_path)):
+            readme_for_current_dir = open(readme_for_current_dir_path).read()
+        else:
+            readme_for_current_dir = "This directory has no description."
+        
         contents = os.listdir(str(grouppath)) #contents of the current directory
         for i in contents:
             complete_filepath = os.path.join(grouppath, i)
@@ -54,12 +63,13 @@ def browse_files(request,groupname):
             else:
                 temp_path = i
             
+            #check if "i" is a file
             if os.path.isfile(complete_filepath):                    
                 #get current readme for each file displayed
-                readme_file = "%s%s"%(complete_filepath,settings.README_FILE_EXT)
-               
+                readme_file = "%s%s"\
+                              %(complete_filepath,settings.README_FILE_EXT)
+
                 if (readme_file):
-                #if str(os.path.splitext(i)[0][-1])==str(settings.README_FILE_EXT):
                     readme = os.path.join(grouppath, i)
                     if os.path.exists(str(readme_file)):
                         readme = open(readme_file).read()
@@ -84,10 +94,11 @@ def browse_files(request,groupname):
                                   'group':groupname,
                                   'readme':readme,
                                 })
-                              
+            
+            #check if "i" is a directory                  
             if os.path.isdir(complete_filepath):
                 #get current readme for each directory displayed
-                readme = os.path.join(grouppath, settings.README_FILE)
+                readme = os.path.join(complete_filepath, settings.README_FILE)
                 if os.path.exists(str(readme)):
                     readme = open(readme).read()
                 else:
@@ -132,6 +143,8 @@ def browse_files(request,groupname):
         "groupname": groupname,
         "url_pieces": url_pieces,
         "crumbs": crumbs,
+        "readme_for_current_dir": readme_for_current_dir,
+        "test": readme_for_current_dir_path,
     }
     
     return render_to_response("home/browse_files.html",

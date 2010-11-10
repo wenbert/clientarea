@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <pre>
-    {{test}}
-    {{test2}}
+    Test Area
 </pre>
 <div style="border: 1px solid #ccc;"> Location: 
 / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
@@ -15,9 +14,16 @@
     {% endifnotequal  %}
 {% endfor %}
 </div>
+<div>
+    <h2>Description for current directory:</h2>
+    {% if user.is_authenticated %}
+        {{readme_for_current_dir}}
+    {% else %}
+        This directory has no description.
+    {% endif %}
+</div>
 <div style="color: red">
     TODO: <br/>
-    Read meta file inside current directory. Read also the meta files inside the directories displayed in current view.<br/>
     Read first few lines of the latest updated READMEs. Do this recursively. So that we can have a "Latest Updates" section.
 </div>
 {% if files or directories%}
