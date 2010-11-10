@@ -6,8 +6,8 @@ corresponding directory in the "storage".
 Each directory will have corresponding README file. ClientArea will read
 the README file and display the information in the browser.
 
-If you are familiar with the README file in Github, then it like it but we can 
-have more for every sub-directory.
+If you are familiar with the README file in Github, then it is like it but we 
+can have more for every sub-directory.
 
 For files: if we have a file named "myawesomefile.txt" your corresponding README
 file for it will be "myawesomefile.txt.README". Since this is a little tedious,
