@@ -16,6 +16,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     (r'^$', home),
+    (r'^home/directories', directories),
     (r'^home/browse_files/(?P<groupname>\w+)', browse_files),
     (r'^home/download_dir_as_zip/(?P<groupname>\w+)', download_dir_as_zip),
     (r'^home/download/(?P<groupname>\w+)/(?P<filename>.*)$', download),
@@ -24,4 +25,13 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.backends.default.urls')),
     #(r'^accounts/', include('accounts.urls')),
     (r'^profiles/', include('profiles.urls')),
+    
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.IMAGES_DOC_ROOT, 'show_indexes': True}),
+        (r'^js/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.JS_DOC_ROOT, 'show_indexes': True}),
+        (r'^css/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.CSS_DOC_ROOT, 'show_indexes': True}),
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_DOC_ROOT, 'show_indexes': True}),
+    )

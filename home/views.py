@@ -16,6 +16,11 @@ def home(request):
     return render_to_response("home/home.html",
                           data, context_instance=RequestContext(request))
 
+def directories(request):
+    data = {}    
+    return render_to_response("home/directories.html",
+                        data, context_instance=RequestContext(request))
+
 @login_required    
 def browse_files(request,groupname):
     """

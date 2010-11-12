@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<div>
+
+<div class="span-24 last">
     <h2>{{current_directory}}</h2>
 </div>
-<div style="border: 1px solid #ccc;"> Location: 
+<div class="span-24 last breadcrumb"> 
+You are currently in: 
 / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
 {% for crumb in crumbs %}
     {% ifnotequal  crumb.name  'None'  %}
@@ -14,7 +16,7 @@
     {% endifnotequal  %}
 {% endfor %}
 </div>
-<div>
+<div class="span-24 last">
     <p>
         {% if user.is_authenticated %}
             {{readme_for_current_dir}}
@@ -27,13 +29,13 @@
         </div>
     </p>
 </div>
-
+<div class="span-24 last">
 {% if files or directories%}
-    <table border=1>
+    <table class="table_bordered">
     <tr>
-        <th>Directory Name</th>
-        <th>Download as Zip</th>
-        <th>Last Modified</th>
+        <th style="width: 150px;">Directory Name</th>
+        <th style="width: 150px;">Download as Zip</th>
+        <th style="width: 80px;">Last Modified</th>
         <th>Description</th>
     </tr>
     {% for directory in directories %}
@@ -45,12 +47,12 @@
     </tr>
     {% endfor %}
     </table>
-    <table border=1>
+    <table class="table_bordered">
     <tr>
-        <th>File Name</th>
-        <th>Download as Zip</th>
-        <th>Size</th>
-        <th>Last Modified</th>
+        <th style="width: 150px;">File Name</th>
+        <th style="width: 150px;">Download as Zip</th>
+        <th style="width: 80px;">Size</th>
+        <th style="width: 80px;">Last Modified</th>
         <th>Description</th>
     </tr>
     {% for file in files %}
@@ -67,8 +69,6 @@
 {% else %}
         No files/directories available.
 {% endif %}
+</div>
 
-<pre>
-    Test Area
-</pre>
 {% endblock %}

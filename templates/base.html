@@ -5,25 +5,29 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Subsea: {% block title %}{% endblock %}</title>
-
+    
     <!-- Framework CSS -->
     <link rel="stylesheet" href="/css/blueprint/screen.css" type="text/css" media="screen, projection">
     <link rel="stylesheet" href="/css/blueprint/print.css" type="text/css" media="print">
     <!--[if lt IE 8]><link rel="stylesheet" href="../blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
 
+    <link rel="stylesheet" href="/css/styles.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="/css/styles.css" type="text/css" media="print">
 </head>
 <body>
 <div class="container">
     <div class="span-24 last">
-        <h1>Client Portal</h1>
+        <img src="/images/subsea.png" border="0"/>
     </div>
-    <div class="span-24 last">
+    
+    <div class="span-24 last horizontal_list">
         <ul>
         {% if user.is_authenticated %}
             <li><a href="/">Home</a></li>
-            <li>Logged in as: <b><a href="/profiles/{{user.username}}">{{ user.username }}</a></b></li>
-            <li><a href="/accounts/logout">Logout</a></li>
+            <li><a href="/home/directories">Your Directories</a></li>
+            <li><a href="/profiles/{{user.username}}">Logged in as: <b>{{ user.username }}</b></a></li>
             <li><a href="/accounts/password/change">Change Password</a></li>
+            <li><a href="/accounts/logout">Logout</a></li>
         {% else %}
             <li><a href="/">Home</a></li>
             <li><a href="/accounts/login">Login</a></li>
@@ -31,23 +35,14 @@
         {% endif %}
         </ul>
     </div>
-    <div class="span-24 last">
-        {% if user.groups.all %}
-        Your directories: 
-        <ul>
-        {% for group in user.groups.all %}
-            <li><a href="/home/browse_files/{{group}}">{{group}}</a></li>
-        {% endfor %}
-        </ul>
-        {% else %}
-        You do not belong to any group yet. Please contact the site administrator.
-        {% endif %}
-    </div>
-    <div class="span-24 last">
+    
+    
     {% block content %}{% endblock %}
+    
     {% block footer %}
+    <div class="span-24 last" style="text-align:center;">
+    <p>&copy; Copyright 2010. Subsea International</p>
     </div>
-    <p>&copy; Copyright 2010. Subsea International / Norwegian Pacific Offshore</p>
     {% endblock %}
 </div>
 </body>

@@ -1,4 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Hello Subsea client.</h2>
+<h2>Welcome!</h2>
+<div class="span-24 last">
+    Hello {% if user.is_authenticated %}{{ user.username }}{%endif%}, 
+    Welcome to our client area.<br/>
+    {% if user.groups.all %}
+    You can start to download your files by clicking on the directory links below:
+    <ul>
+    {% for group in user.groups.all %}
+        <li><a href="/home/browse_files/{{group}}">{{group}}</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    You do not belong to any group yet. Please contact the site administrator.
+    {% endif %}
+</div>
 {% endblock %}

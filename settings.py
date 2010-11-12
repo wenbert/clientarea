@@ -111,9 +111,10 @@ ACCOUNT_ACTIVATION_DAYS = 7
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(os.path.dirname(__file__), '_app_messages')
 
-IMAGES_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/images')
-JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/js')
-CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), 'site_media/css')
+IMAGES_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/images')
+JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/js')
+CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/css')
+STATIC_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/static')
 
 APPLICATION_STORAGE = '/home/subsea/clientarea/storage'
 README_FILE = 'README'
