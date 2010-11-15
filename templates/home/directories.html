@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="span-24 last">
+    {% if user.groups.all %}
+    Your directories: 
+    <p>
+    {% for group in user.groups.all %}
+        <img src="/images/icons/folder_page.png"/> <a href="/home/browse_files/{{group}}">{{group}}</a><br/>
+    {% endfor %}
+    {% else %}
+    You do not belong to any group yet. Please contact the site administrator.
+    {% endif %}
+    </p>
+</div>
+{% endblock %}
