@@ -2,17 +2,22 @@
 {% block content %}
 <h2>Welcome!</h2>
 <div class="span-24 last">
+    <p>
     Hello {% if user.is_authenticated %}{{ user.username }}{%endif%}, 
-    Welcome to our client area.<br/>
+    Welcome to our client area.
+    </p>
     {% if user.groups.all %}
+    <p>
     You can start to download your files by clicking on the directory links below:
-    <ul>
+    </p>
+    <p>
     {% for group in user.groups.all %}
-        <li><a href="/home/browse_files/{{group}}">{{group}}</a></li>
+        <img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{group}}">{{group}}</a><br/>
     {% endfor %}
-    </ul>
+    </p>
     {% else %}
-    You do not belong to any group yet. Please contact the site administrator.
+    <p>You do not belong to any group yet. Please contact the site administrator.</p>
     {% endif %}
+    </p>
 </div>
 {% endblock %}

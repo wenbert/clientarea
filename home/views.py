@@ -314,24 +314,24 @@ def pretty_date(time=False):
         if second_diff < 10:
             return "just now"
         if second_diff < 60:
-            return str(second_diff) + " seconds ago"
+            return str(second_diff) + " second(s) ago"
         if second_diff < 120:
             return  "a minute ago"
         if second_diff < 3600:
-            return str( second_diff / 60 ) + " minutes ago"
+            return str( second_diff / 60 ) + " minute(s) ago"
         if second_diff < 7200:
             return "an hour ago"
         if second_diff < 86400:
-            return str( second_diff / 3600 ) + " hours ago"
+            return str( second_diff / 3600 ) + " hour(s) ago"
     if day_diff == 1:
         return "Yesterday"
     if day_diff < 7:
-        return str(day_diff) + " days ago"
+        return str(day_diff) + " day(s) ago"
     if day_diff < 31:
-        return str(day_diff/7) + " weeks ago"
+        return str(day_diff/7) + " week(s) ago"
     if day_diff < 365:
-        return str(day_diff/30) + " months ago"
-    return str(day_diff/365) + " years ago"
+        return str(day_diff/30) + " month(s) ago"
+    return str(day_diff/365) + " year(s) ago"
     
 def show_time(time_in_seconds_from_epoc):
     t = time.localtime(time_in_seconds_from_epoc)

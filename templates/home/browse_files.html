@@ -17,17 +17,13 @@ You are currently in:
 {% endfor %}
 </div>
 <div class="span-24 last">
-    <p>
+    <div class="main_description">
         {% if user.is_authenticated %}
             {{readme_for_current_dir}}
         {% else %}
             This directory has no description.
         {% endif %}
-        <div>
-            You can download the entire contents of <b>{{current_directory}}</b> directory as a zip file by clicking
-            <a href="/home/download_dir_as_zip/{{groupname}}/">here</a>.
-        </div>
-    </p>
+    </div>
 </div>
 <div class="span-24 last">
 {% if files or directories%}
@@ -40,9 +36,9 @@ You are currently in:
     </tr>
     {% for directory in directories %}
     <tr>
-        <td><a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
-        <td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}.zip</a></td>
-        <td>{{directory.last_modified}}</td>
+        <td><img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
+        <td><img src="/images/icons/compress.png"/> <a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}.zip</a></td>
+        <td class="small_text">{{directory.last_modified}}</td>
         <td>{{directory.readme}}</td>
     </tr>
     {% endfor %}
@@ -58,14 +54,17 @@ You are currently in:
     {% for file in files %}
     <tr>
         <td><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></td>
-        <td><a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}">{{ file.name }}.zip</a></td>
-        <td>{{file.size}}</td>
-        <td>{{file.last_modified}}</td>
+        <td><img src="/images/icons/compress.png"/> <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}">{{ file.name }}.zip</a></td>
+        <td class="small_text">{{file.size}}</td>
+        <td class="small_text">{{file.last_modified}}</td>
         <td>{{file.readme}}</td>
     </tr>
     {% endfor %}
     </table>
-    
+    <p>
+        You can download the entire contents of <b>{{current_directory}}</b> directory as a zip file by clicking
+        <a href="/home/download_dir_as_zip/{{groupname}}/">here</a>.
+    </p>
 {% else %}
         No files/directories available.
 {% endif %}

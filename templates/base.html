@@ -23,8 +23,7 @@
     <div class="span-24 last horizontal_list">
         <ul>
         {% if user.is_authenticated %}
-            <li><a href="/">Home</a></li>
-            <li><a href="/home/directories">Your Directories</a></li>
+            <li><a href="/">Dashboard</a></li>
             <li><a href="/profiles/{{user.username}}">Logged in as: <b>{{ user.username }}</b></a></li>
             <li><a href="/accounts/password/change">Change Password</a></li>
             <li><a href="/accounts/logout">Logout</a></li>
@@ -35,7 +34,6 @@
         {% endif %}
         </ul>
     </div>
-    
     
     {% block content %}{% endblock %}
     
