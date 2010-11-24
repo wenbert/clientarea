@@ -54,7 +54,14 @@ You are currently in:
     {% for file in files %}
     <tr>
         <td><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></td>
-        <td><img src="/images/icons/compress.png"/> <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}">{{ file.name }}.zip</a></td>
+        <td>
+            {% if file.extension != 'zip' %}
+            <img src="/images/icons/compress.png"/> <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}">{{ file.name }}.zip</a>
+            {% else %}
+            <img src="/images/icons/compress.png"/> <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a>
+            {% endif %}
+            
+        </td>
         <td class="small_text">{{file.size}}</td>
         <td class="small_text">{{file.last_modified}}</td>
         <td>{{file.readme}}</td>

@@ -107,6 +107,7 @@ def browse_files(request,groupname):
                                         ),\
                                   'group':groupname,
                                   'readme':readme,
+                                  'extension':complete_filepath.split(".")[-1],
                                 })
             
             #check if "i" is a directory                  
@@ -271,6 +272,11 @@ def download_file_as_zip(request,groupname,filename):
 
 
 def convert_bytes(bytes):
+    """
+    Convert file sizes to human readable ones.
+    I forgot to credit the author of this code. I forgot where I found it.
+    If you know, then please email me. wenbert[at]gmail[dot]com
+    """
     bytes = float(bytes)
     if bytes >= 1099511627776:
         terabytes = bytes / 1099511627776
