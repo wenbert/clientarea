@@ -10,3 +10,10 @@ If you are familiar with the README file in Github, then it is like it but we
 can have more for every sub-directory.
 
 View screenshot: https://github.com/wenbert/clientarea/blob/master/screenshot.png
+
+REQUIREMENTS:
+1) Python 2.6 >
+2) Django
+3) A database (like MySQL)
+4) Install django-registration (http://bitbucket.org/ubernostrum/django-registration/src/tip/docs/quickstart.rst)
+5) Install django-profiles (http://bitbucket.org/ubernostrum/django-profiles/wiki/Home)
