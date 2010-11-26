@@ -2,19 +2,21 @@
 {% block content %}
 
 <div class="span-24 last">
-    <h2>{{current_directory}}</h2>
+    <h2><span class="grey">Current Directory:</span> <b>{{current_directory}}</b></h2>
 </div>
-<div class="span-24 last breadcrumb"> 
-You are currently in: 
-/ <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
-{% for crumb in crumbs %}
-    {% ifnotequal  crumb.name  'None'  %}
-        <a href="/home/browse_files/{{groupname}}/?dir={{crumb.path|urlencode }}">{{crumb.name}}</a> 
-        {%ifnotequal url_dir ''%}
-        /
+<div class="span-24 last"> 
+<div class="breadcrumb">
+    <a href="/"><img src="/images/icons/house.png"/></a> 
+    / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
+    {% for crumb in crumbs %}
+        {% ifnotequal  crumb.name  'None'  %}
+            <a href="/home/browse_files/{{groupname}}/?dir={{crumb.path|urlencode }}">{{crumb.name}}</a> 
+            {%ifnotequal url_dir ''%}
+            /
+            {% endifnotequal  %}
         {% endifnotequal  %}
-    {% endifnotequal  %}
-{% endfor %}
+    {% endfor %}
+    </div>
 </div>
 <div class="span-24 last">
     <div class="main_description">
@@ -26,45 +28,61 @@ You are currently in:
     </div>
 </div>
 <div class="span-24 last">
+    <table class="table_bordered">
+    <tr>
+        <th style="width: 450px;">Directory Name</th>
+        <th style="width: 80px;">Last Modified</th>
+        <th style="width: 50px;">Size</th>
+        <th style="width: 10px;">&nbsp;</th>
+        <th>Description</th>
+    </tr>
+    {% if prev_location %}
+    <tr>
+        <td colspan="4">
+            <img src="/images/icons/arrow_up.png"/><a href="{{prev_location}}">.. (up one level)</a>
+        </td>
+        <td class="small_text">Go to previous directory.</td>
+    </tr>
+    {% endif %}
+    {% if files or directories%}
+        {% for directory in directories %}
+        <tr>
+            <td><img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
+            <td class="small_text">{{directory.last_modified}}</td>
+            <td class="small_text">{{directory.size}}</td>
+            <td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a></td>
+            <td class="small_text"> {{directory.readme}}</td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+    </table>
+    
 {% if files or directories%}
     <table class="table_bordered">
     <tr>
-        <th style="width: 150px;">Directory Name</th>
-        <th style="width: 150px;">Download as Zip</th>
+        <th style="width: 450px;">File Name</th>
         <th style="width: 80px;">Last Modified</th>
-        <th>Description</th>
-    </tr>
-    {% for directory in directories %}
-    <tr>
-        <td><img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
-        <td><img src="/images/icons/compress.png"/> <a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}.zip</a></td>
-        <td class="small_text">{{directory.last_modified}}</td>
-        <td>{{directory.readme}}</td>
-    </tr>
-    {% endfor %}
-    </table>
-    <table class="table_bordered">
-    <tr>
-        <th style="width: 150px;">File Name</th>
-        <th style="width: 150px;">Download as Zip</th>
-        <th style="width: 80px;">Size</th>
-        <th style="width: 80px;">Last Modified</th>
+        <th style="width: 50px;">Size</th>
+        <th style="width: 10px;">&nbsp;</a>
         <th>Description</th>
     </tr>
     {% for file in files %}
     <tr>
-        <td><a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a></td>
         <td>
-            {% if file.extension != 'zip' %}
-            <img src="/images/icons/compress.png"/> <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}">{{ file.name }}.zip</a>
-            {% else %}
-            <img src="/images/icons/compress.png"/> <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a>
-            {% endif %}
+            <img src="/images/icons/{{ file.file_icon }}"/> 
+            <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a>
             
         </td>
-        <td class="small_text">{{file.size}}</td>
         <td class="small_text">{{file.last_modified}}</td>
-        <td>{{file.readme}}</td>
+        <td class="small_text">{{file.size}}</td>
+        <td>
+            {% if file.extension != 'zip' %}
+            <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a>
+            {% else %}
+            <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a>
+            {% endif %}
+        </td>
+        <td class="small_text">{{file.readme}}</td>
     </tr>
     {% endfor %}
     </table>
@@ -73,7 +91,7 @@ You are currently in:
         <a href="/home/download_dir_as_zip/{{groupname}}/">here</a>.
     </p>
 {% else %}
-        No files/directories available.
+        No files available in this directory.
 {% endif %}
 </div>
 

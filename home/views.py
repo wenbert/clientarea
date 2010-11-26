@@ -1,4 +1,4 @@
-import os,sys,tempfile, zipfile, time
+import os,sys,tempfile, zipfile, time, re
 from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist
@@ -28,6 +28,7 @@ def browse_files(request,groupname):
     ?dir=/path/to/subdirectory
     """
     path = settings.APPLICATION_STORAGE
+    prev_location = ""
     data = {}
     files = []
     directories= []
@@ -47,6 +48,11 @@ def browse_files(request,groupname):
     #if dir in the URL is set, append the dir from the GET to the grouppath
     if url_dir:
         grouppath = os.path.join(grouppath,str(url_dir))
+        
+        #check if grouppath string contains the APPLICATION_STORAGE string
+        #if so, then trim it
+        #grouppath = grouppath.replace(path,"xxx")
+        
         #some security checks so that users will not be able 
         #to "navigate" out of their folders
         if settings.APPLICATION_STORAGE not in grouppath: 
@@ -55,6 +61,9 @@ def browse_files(request,groupname):
         elif "../" in grouppath: 
             #make sure not to allow relative paths, etc.
             return render_to_response('404.html')
+            
+        prev_location = "/home/browse_files/%s/?dir=%s"\
+                        % (groupname,"/".join(url_dir.split("/")[0:-1]))
     
     if os.path.exists(str(grouppath)):
         #look for README for the current directory
@@ -68,6 +77,8 @@ def browse_files(request,groupname):
         #contents of the current directory. If there was a path dir in the 
         #dir varialbe in GET, grouppath should now contain that path
         contents = os.listdir(str(grouppath)) 
+
+        
         for i in contents:
             complete_filepath = os.path.join(grouppath, i)
             
@@ -92,6 +103,11 @@ def browse_files(request,groupname):
                         readme = '-'
                 else:
                     pass
+                    
+                #file extension and icon
+                file_icon = ""
+                file_extension = complete_filepath.split(".")[-1]
+                file_icon = get_icon(file_extension)
                         
                 #append to file[], but do not include README
                 if i != settings.README_FILE and os.path.splitext(i)[-1] != settings.README_FILE_EXT:
@@ -107,7 +123,8 @@ def browse_files(request,groupname):
                                         ),\
                                   'group':groupname,
                                   'readme':readme,
-                                  'extension':complete_filepath.split(".")[-1],
+                                  'extension':file_extension,
+                                  'file_icon':file_icon,
                                 })
             
             #check if "i" is a directory                  
@@ -151,6 +168,7 @@ def browse_files(request,groupname):
                       .replace("'","")\
                       .replace(",","/")
                 })
+        
     data = {
         "location": path,
         "url_dir": url_dir,
@@ -163,6 +181,7 @@ def browse_files(request,groupname):
         "crumbs": crumbs,
         "readme_for_current_dir": readme_for_current_dir,
         "test": readme_for_current_dir_path,
+        "prev_location": prev_location,
     }
     
     return render_to_response("home/browse_files.html",
@@ -342,4 +361,46 @@ def pretty_date(time=False):
 def show_time(time_in_seconds_from_epoc):
     t = time.localtime(time_in_seconds_from_epoc)
     return time.strftime(settings.TIME_FORMAT, t)
+    
+def get_icon(file_extension):
+    file_icon = "page_white.png"
+    if file_extension == "zip" or file_extension == "rar"\
+        or file_extension == "gz" or file_extension == "7z":
+        file_icon = "compress.png"
+    elif file_extension == "pdf":
+        file_icon = "page_white_acrobat.png"
+    elif file_extension == "doc" \
+        or file_extension == "docx" \
+        or file_extension == "rtf":
+        file_icon = "page_word.png"
+    elif file_extension == "ppt" or file_extension == "pptx":
+        file_icon = "page_white_powerpoint.png"
+    elif file_extension == "html" \
+        or file_extension == "htm":
+        file_icon = "page_world.png"
+    elif file_extension == "xls" \
+        or file_extension == "xlsx":
+        file_icon = "page_white_excel.png"
+    elif file_extension == "png"\
+        or file_extension == "jpg" or file_extension == "jpeg"\
+        or file_extension == "gif"\
+        or file_extension == "tif" or file_extension == "tiff":
+        file_icon = "picture.png"
+    elif file_extension == "cad" or file_extension == "dxf":
+        file_icon = "map.png"
+    elif file_extension == "pds" or file_extension == "all":
+        file_icon == "bricks.png"
+    elif file_extension == "txt"\
+        or file_extension == "csv"\
+        or file_extension == "asc"\
+        or file_extension == "tab":
+        file_icon = "page_white_text.png"
+    elif file_extension == "rln" or file_extension == "rlx":
+        file_icon = "chart_line.png"
+    elif file_extension == "xyz":
+        file_icon = "script_gear.png"
+    else:
+        file_icon = "page_white.png"
+        
+    return file_icon
     
