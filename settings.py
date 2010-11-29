@@ -111,10 +111,15 @@ ACCOUNT_ACTIVATION_DAYS = 7
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(os.path.dirname(__file__), '_app_messages')
 
+"""
+Images, CSS, other stuff.
+"""
 IMAGES_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/images')
 JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/js')
 CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/css')
 STATIC_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/static')
+LOGO_URL = "http://client.npo-inc.com/images/subsea.png"
+LOGO_TEXT = "Subsea International"
 
 APPLICATION_STORAGE = '/home/subsea/clientarea/storage'
 README_FILE = 'README'

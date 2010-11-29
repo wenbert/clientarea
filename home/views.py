@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
+
 def home(request):
     data = {}    
     return render_to_response("home/home.html",
@@ -203,15 +204,23 @@ def download(request,groupname,filename):
     filename = os.path.join(groupname,filename)
     filepath = os.path.join(path,filename)
     filename = filepath
-    wrapper = FileWrapper(file(filename))
     
+    response = HttpResponse(mimetype='application/force-download') 
+    response['Content-Disposition']='attachment;filename="%s"'\
+                                    %smart_str(filename)
+    response["X-Sendfile"] = filename
+    response['Content-length'] = os.stat(filename).st_size
+    return response
+    
+    """
+    wrapper = FileWrapper(file(filename))
     response = HttpResponse(wrapper, mimetype='application/force-download')
     
     response['Content-Length'] = os.path.getsize(filename)
     response['Content-Disposition'] = 'attachment; filename=%s' \
                                        % smart_str(filename)
-
     return response
+    """
     
 @login_required
 def download_dir_as_zip(request,groupname):
@@ -253,7 +262,7 @@ def download_dir_as_zip(request,groupname):
                 absfn = os.path.join(root, fn)
                 zfn = absfn[len(grouppath)+len(os.sep):] #XXX: relative path
                 z.write(absfn, zfn)
-            
+
     wrapper = FileWrapper(temp)
     response = HttpResponse(wrapper, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=' + archivename
@@ -288,7 +297,6 @@ def download_file_as_zip(request,groupname,filename):
     response['Content-Length'] = temp.tell()
     temp.seek(0)
     return response
-
 
 def convert_bytes(bytes):
     """
