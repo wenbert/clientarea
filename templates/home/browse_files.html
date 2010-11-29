@@ -33,12 +33,12 @@
         <th style="width: 450px;">Directory Name</th>
         <th style="width: 80px;">Last Modified</th>
         <th style="width: 50px;">Size</th>
-        <th style="width: 10px;">&nbsp;</th>
+        <!-- <th style="width: 10px;">&nbsp;</th>-->
         <th>Description</th>
     </tr>
     {% if prev_location %}
     <tr>
-        <td colspan="4">
+        <td colspan="3">
             <img src="/images/icons/arrow_up.png"/><a href="{{prev_location}}">.. (up one level)</a>
         </td>
         <td class="small_text">Go to previous directory.</td>
@@ -50,7 +50,7 @@
             <td><img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
             <td class="small_text">{{directory.last_modified}}</td>
             <td class="small_text">{{directory.size}}</td>
-            <td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a></td>
+            <!--<td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a></td>-->
             <td class="small_text"> {{directory.readme}}</td>
         </tr>
         {% endfor %}
@@ -63,7 +63,7 @@
         <th style="width: 450px;">File Name</th>
         <th style="width: 80px;">Last Modified</th>
         <th style="width: 50px;">Size</th>
-        <th style="width: 10px;">&nbsp;</a>
+        <!--<th style="width: 10px;">&nbsp;</a>-->
         <th>Description</th>
     </tr>
     {% for file in files %}
@@ -75,21 +75,23 @@
         </td>
         <td class="small_text">{{file.last_modified}}</td>
         <td class="small_text">{{file.size}}</td>
-        <td>
+        <!--<td>
             {% if file.extension != 'zip' %}
             <a href="/home/download_file_as_zip/{{groupname}}/{{file.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a>
             {% else %}
             <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a>
             {% endif %}
-        </td>
+        </td>-->
         <td class="small_text">{{file.readme}}</td>
     </tr>
     {% endfor %}
     </table>
+    <!-- 
     <p class="small_text" style="text-align: right; color: #999999;">
         You can download the entire contents of <b>{{current_directory}}</b> directory as a zip file by clicking
         <a href="/home/download_dir_as_zip/{{groupname}}/">here</a>.
     </p>
+    -->
 {% else %}
         No files available in this directory.
 {% endif %}

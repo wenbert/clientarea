@@ -226,7 +226,12 @@ def download(request,groupname,filename):
 def download_dir_as_zip(request,groupname):
     """
     Download a directory or a file as zip.
+    This is disabled for now. Will have to confirm if Python creates a zipfile
+    in the memory. The ideal thing would be to create a temp zip file and
+    pass the "path" of that zip through x-sendfile.
     """
+    pass;
+    
     path = settings.APPLICATION_STORAGE    
     url_dir = request.GET.get('dir')    
     #check if group of request.user
@@ -275,7 +280,12 @@ def download_dir_as_zip(request,groupname):
 def download_file_as_zip(request,groupname,filename):
     """
     Download a file as zipfile.
+    This is disabled for now. Will have to confirm if Python creates a zipfile
+    in the memory. The ideal thing would be to create a temp zip file and
+    pass the "path" of that zip through x-sendfile.
     """
+    pass;
+    
     custgroup = Group.objects.get(name=groupname)
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
@@ -290,6 +300,7 @@ def download_file_as_zip(request,groupname,filename):
     archive = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
     archive.write(filepath, os.path.basename(filename))
     archive.close()
+    
     wrapper = FileWrapper(temp)
     response = HttpResponse(wrapper, content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=%s.zip'\
