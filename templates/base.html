@@ -20,19 +20,28 @@
         <img src="/images/subsea.png" border="0"/>
     </div>
     
-    <div class="span-24 last horizontal_list">
-        <ul>
-        {% if user.is_authenticated %}
-            <li><a href="/">Dashboard</a></li>
-            <li><a href="/profiles/{{user.username}}">Logged in as: <b>{{ user.username }}</b></a></li>
-            <li><a href="/accounts/password/change">Change Password</a></li>
-            <li><a href="/accounts/logout">Logout</a></li>
-        {% else %}
-            <li><a href="/">Home</a></li>
-            <li><a href="/accounts/login">Login</a></li>
-            <li><a href="/accounts/password/reset">Forgot Password</a></li>
-        {% endif %}
-        </ul>
+    <div class="span-24 last">
+        <div class="cornerBox">
+            <div class="corner_blue TL"></div>
+            <div class="corner_blue TR"></div>
+            <div class="corner_blue BL"></div>
+            <div class="corner_blue BR"></div>
+            <div class="cornerBoxInner horizontal_list">
+                <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/profiles/{{user.username}}">Logged in as: <b>{{ user.username }}</b></a></li>
+                    <li><a href="/accounts/password/change">Change Password</a></li>
+                    <li><a href="/accounts/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/accounts/login">Login</a></li>
+                    <li><a href="/accounts/password/reset">Forgot Password</a></li>
+                {% endif %}
+                </ul>
+                &nbsp;
+            </div>
+        </div>
     </div>
     
     {% block content %}{% endblock %}

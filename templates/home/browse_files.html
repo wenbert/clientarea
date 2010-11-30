@@ -5,19 +5,26 @@
     <h2><span class="grey">Current Directory:</span> <b>{{current_directory}}</b></h2>
 </div>
 <div class="span-24 last"> 
-<div class="breadcrumb">
-    <a href="/"><img src="/images/icons/house.png"/></a> 
-    / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
-    {% for crumb in crumbs %}
-        {% ifnotequal  crumb.name  'None'  %}
-            <a href="/home/browse_files/{{groupname}}/?dir={{crumb.path|urlencode }}">{{crumb.name}}</a> 
-            {%ifnotequal url_dir ''%}
-            /
-            {% endifnotequal  %}
-        {% endifnotequal  %}
-    {% endfor %}
+    <div class="cornerBox">
+        <div class="corner TL"></div>
+        <div class="corner TR"></div>
+        <div class="corner BL"></div>
+        <div class="corner BR"></div>
+        <div class="cornerBoxInner">
+            <a href="/"><img class="breadcrumb_img" src="/images/icons/house.png"/></a> 
+            / <a href="/home/browse_files/{{groupname}}">{{groupname}}</a> /
+            {% for crumb in crumbs %}
+                {% ifnotequal  crumb.name  'None'  %}
+                    <a href="/home/browse_files/{{groupname}}/?dir={{crumb.path|urlencode }}">{{crumb.name}}</a> 
+                    {%ifnotequal url_dir ''%}
+                    /
+                    {% endifnotequal  %}
+                {% endifnotequal  %}
+            {% endfor %}
+        </div>
     </div>
 </div>
+
 <div class="span-24 last">
     <div class="main_description">
         {% if user.is_authenticated %}
@@ -47,7 +54,7 @@
     {% if files or directories%}
         {% for directory in directories %}
         <tr>
-            <td><img src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
+            <td><img class="valign_middle" src="/images/icons/folder.png"/> <a href="/home/browse_files/{{groupname}}/?dir={{directory.path|urlencode }}">{{ directory.name }}</a></td>
             <td class="small_text">{{directory.last_modified}}</td>
             <td class="small_text">{{directory.size}}</td>
             <!--<td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a></td>-->
@@ -64,12 +71,13 @@
         <th style="width: 80px;">Last Modified</th>
         <th style="width: 50px;">Size</th>
         <!--<th style="width: 10px;">&nbsp;</a>-->
+        <th style="width: 20px;">Type</th>
         <th>Description</th>
     </tr>
     {% for file in files %}
     <tr>
         <td>
-            <img src="/images/icons/{{ file.file_icon }}"/> 
+            <img class="valign_middle" src="/images/icons/{{ file.file_icon }}"/> 
             <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}">{{ file.name }}</a>
             
         </td>
@@ -82,6 +90,7 @@
             <a href="/home/download/{{groupname}}/{{ file.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a>
             {% endif %}
         </td>-->
+        <td class="small_text">{{file.extension}}</td>
         <td class="small_text">{{file.readme}}</td>
     </tr>
     {% endfor %}
