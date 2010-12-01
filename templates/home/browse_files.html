@@ -37,11 +37,11 @@
 <div class="span-24 last">
     <table class="table_bordered">
     <tr>
-        <th style="width: 450px;">Directory Name</th>
-        <th style="width: 80px;">Last Modified</th>
-        <th style="width: 50px;">Size</th>
+        <th style="width: 450px;" class="small_text">Directory Name</th>
+        <th style="width: 80px;" class="small_text">Last Modified</th>
+        <th style="width: 50px;" class="small_text">Size</th>
         <!-- <th style="width: 10px;">&nbsp;</th>-->
-        <th>Description</th>
+        <th class="small_text">Description</th>
     </tr>
     {% if prev_location %}
     <tr>
@@ -67,12 +67,12 @@
 {% if files or directories%}
     <table class="table_bordered">
     <tr>
-        <th style="width: 450px;">File Name</th>
-        <th style="width: 80px;">Last Modified</th>
-        <th style="width: 50px;">Size</th>
+        <th style="width: 450px;" class="small_text">File Name</th>
+        <th style="width: 80px;" class="small_text">Last Modified</th>
+        <th style="width: 50px;" class="small_text">Size</th>
         <!--<th style="width: 10px;">&nbsp;</a>-->
-        <th style="width: 20px;">Type</th>
-        <th>Description</th>
+        <th style="width: 20px;" class="small_text">Type</th>
+        <th class="small_text">Description</th>
     </tr>
     {% for file in files %}
     <tr>
