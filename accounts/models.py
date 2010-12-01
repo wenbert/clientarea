@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 from registration import signals
+from django.db.models.signals import post_save
+from django.conf import settings
+
+import os,sys
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True)
@@ -20,6 +24,7 @@ class UserProfile(models.Model):
         return ('profiles_profile_detail', (), {'username': self.user.username})
     get_absolute_url = models.permalink(get_absolute_url)
 
+
 def create_user_profile(sender, **kwargs):
     '''Create a user profile for the user after registering'''
     user = kwargs['user']
@@ -38,6 +43,16 @@ def create_user_profile(sender, **kwargs):
     user.last_name = last_name
     user.save()
     profile.save()
+
+def create_dir(sender, **kwargs):
+    """
+    Creates a directory when the admin creates a group. The name of the directory
+    is the same as the name of the group that was created.
+    """
+    instance = kwargs['instance']
+    path_to_create = '%s/%s' % (settings.APPLICATION_STORAGE,instance.name)
+    if not os.path.isdir(path_to_create):
+        os.mkdir(path_to_create)
     
 signals.user_registered.connect(create_user_profile)
-
+post_save.connect(create_dir, sender=Group)
