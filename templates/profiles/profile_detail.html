@@ -4,10 +4,10 @@
 <h2>Info for {{ profile }} </h2>
 <hr/>
 <p>
-	<strong>Email:</strong> {{user.email}}
+	<strong>Name:</strong> {{profile.firstname}} {{profile.lastname}}
 </p>
 <p>
-	<strong>Name:</strong> {{profile.firstname}} {{profile.lastname}}
+	<strong>Email:</strong> {{user.email}}
 </p>
 <p>
 	<strong>Address:</strong> {{profile.address1}} {% if profile.address2 %}, {{profile.address2}} {% endif %}
