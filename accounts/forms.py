@@ -10,13 +10,13 @@ class ProfileForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
         except User.DoesNotExist:
             pass
+    email = forms.CharField(label='Email')
     first_name = forms.CharField(label='First Name')
     last_name = forms.CharField(label='Last Name')
     email = forms.EmailField(label='Email', help_text='')
 
     class Meta:
         model = UserProfile
-        exclude = ('user')
 
     def save(self, *args, **kwargs):
         u = self.instance.user

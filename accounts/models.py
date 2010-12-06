@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True)
     firstname       = models.CharField(max_length=250, verbose_name="First Name",blank=True, null=True)
     lastname        = models.CharField(max_length=250, verbose_name="Last Name",blank=True, null=True)
+    email           = models.EmailField(verbose_name="Email",blank=True, null=True)
     address1        = models.CharField(max_length=250, verbose_name="Address 1",blank=True, null=True)
     address2        = models.CharField(max_length=250, verbose_name="Address 2", blank=True, null=True)
     city            = models.CharField(max_length=250, verbose_name="City",blank=True, null=True)
