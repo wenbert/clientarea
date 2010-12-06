@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, Group
 from registration import signals
 from django.db.models.signals import post_save
 from django.conf import settings
-
+from django.dispatch import dispatcher
 import os,sys
 
 class UserProfile(models.Model):
@@ -24,7 +24,7 @@ class UserProfile(models.Model):
         return ('profiles_profile_detail', (), {'username': self.user.username})
     get_absolute_url = models.permalink(get_absolute_url)
 
-
+"""
 def create_user_profile(sender, **kwargs):
     '''Create a user profile for the user after registering'''
     user = kwargs['user']
@@ -43,6 +43,11 @@ def create_user_profile(sender, **kwargs):
     user.last_name = last_name
     user.save()
     profile.save()
+"""
+
+def user_post_save(sender, instance, **kwargs):
+    profile, new = UserProfile.objects.get_or_create(user=instance)
+    
 
 def create_dir(sender, **kwargs):
     """
@@ -54,5 +59,6 @@ def create_dir(sender, **kwargs):
     if not os.path.isdir(path_to_create):
         os.mkdir(path_to_create)
     
-signals.user_registered.connect(create_user_profile)
+#signals.user_registered.connect(create_user_profile)
+models.signals.post_save.connect(user_post_save, sender=User)
 post_save.connect(create_dir, sender=Group)
