@@ -5,5 +5,5 @@
 *.sqlite
 .DS_Store
 .Thumbs.db
-
+subsea
 # For more info: http://help.github.com/git-ignore/ 
