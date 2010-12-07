@@ -24,6 +24,8 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('registration.backends.default.urls')),
     #(r'^accounts/', include('accounts.urls')),
+    # First match /profiles/edit before django-profiles gets it so we can pass in our custom form object.
+    ('^profiles/edit', 'profiles.views.edit_profile', {'form_class': ProfileForm,}),
     (r'^profiles/', include('profiles.urls')),
     
 )

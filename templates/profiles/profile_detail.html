@@ -4,11 +4,12 @@
 <h2>Info for {{ profile }} </h2>
 <hr/>
 <p>
-	<strong>Name:</strong> {{profile.firstname}} {{profile.lastname}}
+	<strong>Name:</strong> {{user.first_name}} {{user.last_name}}
 </p>
 <p>
 	<strong>Email:</strong> {{user.email}}
 </p>
+<!--
 <p>
 	<strong>Address:</strong> {{profile.address1}} {% if profile.address2 %}, {{profile.address2}} {% endif %}
 </p>
@@ -21,6 +22,7 @@
 <p>
 	<strong>Zipcode:</strong> {{profile.zipcode}}
 </p>
+-->
 {% if profile.user == user %}
 <p>
 	<a href="/profiles/edit">Edit</a>

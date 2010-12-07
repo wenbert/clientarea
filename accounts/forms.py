@@ -1,5 +1,6 @@
 from django import forms
-from accounts.models import UserProfile
+from accounts.models import  User
+from accounts.models import  UserProfile
 
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -10,13 +11,16 @@ class ProfileForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
         except User.DoesNotExist:
             pass
-    email = forms.CharField(label='Email')
+    #email = forms.CharField(label=' Name')
+    
     first_name = forms.CharField(label='First Name')
     last_name = forms.CharField(label='Last Name')
     email = forms.EmailField(label='Email', help_text='')
 
     class Meta:
+        
         model = UserProfile
+        exclude = ('user')
 
     def save(self, *args, **kwargs):
         u = self.instance.user
