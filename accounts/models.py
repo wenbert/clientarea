@@ -26,10 +26,10 @@ class UserProfile(models.Model):
     get_absolute_url = models.permalink(get_absolute_url)
     
 class UserLogin(models.Model):
-    """Represent users' logins, one per record"""
-    user        = models.ForeignKey(User) 
-    #ip_address  = models.CharField(
+    """Represent users' logins, one per record"""        
+    user        = models.ForeignKey(User)
     timestamp   = models.DateTimeField(auto_now=True)
+        
 
 def user_post_save(sender, instance, **kwargs):
     """
@@ -58,4 +58,4 @@ def user_login_save(sender, instance, **kwargs):
 #signals.user_registered.connect(create_user_profile)
 models.signals.post_save.connect(user_post_save, sender=User)
 post_save.connect(create_dir, sender=Group)
-models.signals.post_save.connect(user_login_save, sender=User)
+models.signals.post_save.connect(user_login_save,  sender=User)
