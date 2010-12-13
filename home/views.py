@@ -11,6 +11,9 @@ from django.contrib.auth.models import Group
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from home.models import *
+from user import *
+
 
 def home(request):
     data = {}    
@@ -198,8 +201,8 @@ def download(request,groupname,filename):
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
     else:
-        pass
-    
+        pass 
+        
     path = settings.APPLICATION_STORAGE
     filename = os.path.join(groupname,filename)
     filepath = os.path.join(path,filename)
@@ -210,6 +213,8 @@ def download(request,groupname,filename):
                                     %smart_str(filename)
     response["X-Sendfile"] = filename
     response['Content-length'] = os.stat(filename).st_size
+    
+    log_action(request,filepath)   
     return response
     
     """
@@ -230,7 +235,7 @@ def download_dir_as_zip(request,groupname):
     in the memory. The ideal thing would be to create a temp zip file and
     pass the "path" of that zip through x-sendfile.
     """
-    pass;
+    pass
     
     path = settings.APPLICATION_STORAGE    
     url_dir = request.GET.get('dir')    
@@ -284,7 +289,7 @@ def download_file_as_zip(request,groupname,filename):
     in the memory. The ideal thing would be to create a temp zip file and
     pass the "path" of that zip through x-sendfile.
     """
-    pass;
+    pass
     
     custgroup = Group.objects.get(name=groupname)
     if custgroup not in request.user.groups.all():
@@ -423,3 +428,14 @@ def get_icon(file_extension):
         
     return file_icon
     
+
+def log_action(request,target):
+    try:
+        log = Log(
+            user            = request.user,
+            log_target      = target,
+            log_ip          = request.META['REMOTE_ADDR'],
+        )
+        log.save()
+    except e:
+        raise e
