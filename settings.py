@@ -112,16 +112,31 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(os.path.dirname(__file__), '_app_messages')
 
 """
+Logo URL and Text
+"""
+LOGO_URL = "http://client.npo-inc.com/images/subsea.png"
+LOGO_TEXT = "Subsea International"
+
+"""
 Images, CSS, other stuff.
 """
 IMAGES_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/images')
 JS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/js')
 CSS_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/css')
 STATIC_DOC_ROOT = os.path.join(os.path.dirname(__file__), '/home/subsea/public_html/static')
-LOGO_URL = "http://client.npo-inc.com/images/subsea.png"
-LOGO_TEXT = "Subsea International"
 
+"""
+this is where all the files will be stored!
+also check the /etc/apache2/sites-available/client.npo-inc.com 
+for the Xsendfile setting
+"""
 APPLICATION_STORAGE = '/home/subsea/clientarea/storage'
+
+#README_FILE will be read by the app to display information for directories
 README_FILE = 'README'
+
+#README_FILE_EXT will be read by the app to display information for files
 README_FILE_EXT = '.README'
+
+#TIME_FORMAT used to format the time displayed when browsing the files
 TIME_FORMAT = '%a, %d %b %Y %H:%M:%S'
