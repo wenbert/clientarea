@@ -214,7 +214,7 @@ def download(request,groupname,filename):
     response["X-Sendfile"] = filename
     response['Content-length'] = os.stat(filename).st_size
     
-    log_action(request,filepath)   
+    log_action(request,filepath,os.stat(filename).st_size)   
     return response
     
     """
@@ -429,13 +429,17 @@ def get_icon(file_extension):
     return file_icon
     
 
-def log_action(request,target):
+def log_action(request,target,log_size):
     try:
         log = Log(
             user            = request.user,
             log_target      = target,
             log_ip          = request.META['REMOTE_ADDR'],
+            log_size        = log_size,
+            log_user_agent  = request.META['HTTP_USER_AGENT'],
+            log_ref         = request.META['HTTP_REFERER'],
+            log_lang        = request.META['HTTP_ACCEPT_LANGUAGE'],
         )
         log.save()
-    except e:
+    except NameError, e:
         raise e

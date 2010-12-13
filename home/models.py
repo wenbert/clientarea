@@ -11,4 +11,8 @@ class Log(models.Model):
     log_ip          = models.IPAddressField(verbose_name='IP Address')
     log_datetime    = models.DateTimeField(auto_now=True, auto_now_add=True,\
                                             verbose_name='Datetime')
+    log_size        = models.FloatField()
+    log_user_agent  = models.CharField(max_length=250)
+    log_ref         = models.CharField(max_length=250)
+    log_lang        = models.CharField(max_length=250)
     
