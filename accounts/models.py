@@ -29,7 +29,9 @@ class UserLogin(models.Model):
     """Represent users' logins, one per record"""        
     user        = models.ForeignKey(User)
     timestamp   = models.DateTimeField(auto_now=True)
-        
+    
+    def __unicode__(self):
+        return "%s at %s" % (self.user,self.timestamp)
 
 def user_post_save(sender, instance, **kwargs):
     """

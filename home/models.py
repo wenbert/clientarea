@@ -16,3 +16,5 @@ class Log(models.Model):
     log_ref         = models.CharField(max_length=250)
     log_lang        = models.CharField(max_length=250)
     
+    def __unicode__(self):
+        return "%s: %s from %s at %s" % (self.user,self.log_target,self.log_ip,self.log_datetime)
