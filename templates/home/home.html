@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Welcome!</h2>
+<div class="span-24 last">
+    <h2>Welcome!</h2>
+</div>
 <div class="span-24 last">
     <p>
     Hello {% if user.is_authenticated %}{{ user.username }}{%endif%}, 

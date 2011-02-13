@@ -2,6 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
+
+class Filecomments(models.Model):
+    """
+    Comments for a file
+    """
+    groupname = models.CharField(max_length=250)
+    file_path = models.CharField(max_length=500)
+    
+
 class Log(models.Model):
     """
     Log user activity when clicking links

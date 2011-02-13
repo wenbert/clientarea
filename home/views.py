@@ -8,22 +8,23 @@ from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from home.models import *
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from home.models import *
 from user import *
 
-
+@login_required  
 def home(request):
     data = {}    
     return render_to_response("home/home.html",
                           data, context_instance=RequestContext(request))
-
+@login_required
 def directories(request):
     data = {}    
     return render_to_response("home/directories.html",
-                        data, context_instance=RequestContext(request))
+                        data, context_instance=RequestContext(request))  
 
 @login_required    
 def browse_files(request,groupname):
@@ -81,7 +82,6 @@ def browse_files(request,groupname):
         #contents of the current directory. If there was a path dir in the 
         #dir varialbe in GET, grouppath should now contain that path
         contents = os.listdir(str(grouppath)) 
-
         
         for i in contents:
             complete_filepath = os.path.join(grouppath, i)
@@ -94,7 +94,7 @@ def browse_files(request,groupname):
                 temp_path = i
             
             #check if "i" is a file
-            if os.path.isfile(complete_filepath):                    
+            if os.path.isfile(complete_filepath):             
                 #get current readme for each file displayed
                 readme_file = "%s%s"\
                               %(complete_filepath,settings.README_FILE_EXT)
@@ -191,7 +191,64 @@ def browse_files(request,groupname):
     return render_to_response("home/browse_files.html",
                           data, context_instance=RequestContext(request))
 
+@login_required
+def save_readme(request,groupname,filename):
+    """
+    create or edit the .README file
+    """
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass 
+    
+    path = settings.APPLICATION_STORAGE
+    grouppath = os.path.join(path, str(groupname)) 
+    grouppath = os.path.join(grouppath,str(filename))
+    check_access_to_grouppath(grouppath)
+    readme_for_current_path = ""
+    
+    #look for README for the current directory
+    readme_current = ""
+    readme_for_current_path = "%s%s"%(grouppath,settings.README_FILE_EXT)
+    
+    readme_current = open(readme_for_current_path, 'w')
+    readme_current.write('test succeeded') 
+    readme_current.close()
+        
+    data = {
+        "readme_for_current_path": readme_for_current_path,
+        "groupname": groupname,
+        "grouppath": grouppath,
+    }
+    return render_to_response("home/debug.html",
+                          data, context_instance=RequestContext(request))
 
+
+@login_required
+def add_comment(request,groupname,filename):
+    """
+    add file path to model
+    """
+    custgroup = Group.objects.get(name=groupname)
+    if custgroup not in request.user.groups.all():
+         return render_to_response('404.html')
+    else:
+        pass 
+        
+    fc = Filecomments(
+        groupname = groupname,
+        file_path = filename,
+    )
+    fc.save()
+    data = {
+        "file_id" : fc.id,
+        "file_path": filename,
+        "groupname": groupname,
+    }
+    return render_to_response("home/file_comment.html",
+                          data, context_instance=RequestContext(request))
+    
 @login_required
 def download(request,groupname,filename):
     """
@@ -234,8 +291,10 @@ def download_dir_as_zip(request,groupname):
     This is disabled for now. Will have to confirm if Python creates a zipfile
     in the memory. The ideal thing would be to create a temp zip file and
     pass the "path" of that zip through x-sendfile.
+    
+    THIS IS CURRENTLY DISABLED
     """
-    pass
+    return False
     
     path = settings.APPLICATION_STORAGE    
     url_dir = request.GET.get('dir')    
@@ -288,8 +347,10 @@ def download_file_as_zip(request,groupname,filename):
     This is disabled for now. Will have to confirm if Python creates a zipfile
     in the memory. The ideal thing would be to create a temp zip file and
     pass the "path" of that zip through x-sendfile.
+    
+    THIS IS CURRENTLY DISABLED
     """
-    pass
+    return False
     
     custgroup = Group.objects.get(name=groupname)
     if custgroup not in request.user.groups.all():
@@ -387,6 +448,12 @@ def show_time(time_in_seconds_from_epoc):
     return time.strftime(settings.TIME_FORMAT, t)
     
 def get_icon(file_extension):
+    """
+    Using Silk Icons
+    http://www.famfamfam.com/lab/icons/silk/
+    
+    Returns page_white.png as the default icon.
+    """
     file_icon = "page_white.png"
     if file_extension == "zip" or file_extension == "rar"\
         or file_extension == "gz" or file_extension == "7z":
@@ -428,8 +495,18 @@ def get_icon(file_extension):
         
     return file_icon
     
+def check_access_to_grouppath(grouppath):
+    if settings.APPLICATION_STORAGE not in grouppath: 
+        #make sure that grouppath is inside the APPLICATION_STORAGE
+        return render_to_response('404.html')
+    elif "../" in grouppath: 
+        #make sure not to allow relative paths, etc.
+        return render_to_response('404.html')
 
 def log_action(request,target,log_size):
+    """
+    Logs a file download.
+    """
     try:
         log = Log(
             user            = request.user,
