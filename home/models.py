@@ -3,6 +3,17 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+class Desclogs(models.Model):
+    """
+    Logs for editting of the description or README files
+    """
+    groupname = models.CharField(max_length=250)
+    file_path = models.CharField(max_length=500)
+    user = models.ForeignKey(User)
+    old_desc = models.TextField()
+    datetime  = models.DateTimeField(auto_now=True, auto_now_add=True,\
+                                            verbose_name='Datetime')
+
 class Filecomments(models.Model):
     """
     Comments for a file

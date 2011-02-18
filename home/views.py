@@ -8,12 +8,16 @@ from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from home.forms import *
+from django.core.exceptions import ObjectDoesNotExist
+import datetime
 from home.models import *
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
-
+import simplejson as json
 from home.models import *
 from user import *
+from django.utils.html import strip_tags
 
 @login_required  
 def home(request):
@@ -34,6 +38,7 @@ def browse_files(request,groupname):
     """
     path = settings.APPLICATION_STORAGE
     prev_location = ""
+    readme_last_modified = ""
     data = {}
     files = []
     directories= []
@@ -83,6 +88,7 @@ def browse_files(request,groupname):
         #dir varialbe in GET, grouppath should now contain that path
         contents = os.listdir(str(grouppath)) 
         
+        count = 0
         for i in contents:
             complete_filepath = os.path.join(grouppath, i)
             
@@ -100,9 +106,18 @@ def browse_files(request,groupname):
                               %(complete_filepath,settings.README_FILE_EXT)
                               
                 if (readme_file):
+                    desc_file_editedby = ''
                     readme = os.path.join(grouppath, i)
                     if os.path.exists(str(readme_file)):
                         readme = open(readme_file).read()
+                        readme_last_modified = pretty_date(os.path.getmtime(readme_file))
+                        try:
+                            pass
+                            #Desclog = Desclogs(groupname=groupname,file_path=complete_filepath).latest('datetime').user
+                        except ObjectDoesNotExist:
+                            pass
+                            #desc_file_editedby = '%s %s'%(groupname,complete_filepath)
+                            #desc_file_editedby = '-'
                     else:
                         readme = '-'
                 else:
@@ -129,6 +144,9 @@ def browse_files(request,groupname):
                                   'readme':readme,
                                   'extension':file_extension,
                                   'file_icon':file_icon,
+                                  'id':count,
+                                  'readme_last_modified': readme_last_modified,
+                                  'desc_file_editedby': desc_file_editedby,
                                 })
             
             #check if "i" is a directory                  
@@ -153,7 +171,12 @@ def browse_files(request,groupname):
                                     ),\
                                'group':groupname,
                                'readme':readme,
+                                'id':count,
+                                  'readme_last_modified': readme_last_modified,
+                                  'desc_file_editedby': desc_file_editedby,
                             })
+                            
+            count += 1
     else:
         pass
         
@@ -172,7 +195,7 @@ def browse_files(request,groupname):
                       .replace("'","")\
                       .replace(",","/")
                 })
-        
+    
     data = {
         "location": path,
         "url_dir": url_dir,
@@ -186,45 +209,93 @@ def browse_files(request,groupname):
         "readme_for_current_dir": readme_for_current_dir,
         "test": readme_for_current_dir_path,
         "prev_location": prev_location,
+        "form": EditDescForm(),
     }
     
     return render_to_response("home/browse_files.html",
                           data, context_instance=RequestContext(request))
 
 @login_required
-def save_readme(request,groupname,filename):
+def save_readme(request):
     """
     create or edit the .README file
     """
-    custgroup = Group.objects.get(name=groupname)
-    if custgroup not in request.user.groups.all():
-         return render_to_response('404.html')
-    else:
-        pass 
+    success = False
+    error = None
+    filelines = ''
     
-    path = settings.APPLICATION_STORAGE
-    grouppath = os.path.join(path, str(groupname)) 
-    grouppath = os.path.join(grouppath,str(filename))
-    check_access_to_grouppath(grouppath)
-    readme_for_current_path = ""
-    
-    #look for README for the current directory
-    readme_current = ""
-    readme_for_current_path = "%s%s"%(grouppath,settings.README_FILE_EXT)
-    
-    readme_current = open(readme_for_current_path, 'w')
-    readme_current.write('test succeeded') 
-    readme_current.close()
+    if request.method == 'POST' and request.is_ajax():
         
-    data = {
-        "readme_for_current_path": readme_for_current_path,
-        "groupname": groupname,
-        "grouppath": grouppath,
-    }
-    return render_to_response("home/debug.html",
-                          data, context_instance=RequestContext(request))
-
-
+        
+        form = EditDescForm(request.POST)
+        if form.is_valid():
+            
+            dialog_desc = form.cleaned_data['dialog_desc']
+            groupname = form.cleaned_data['dialog_groupname']
+            filename = form.cleaned_data['dialog_filename']
+            
+            custgroup = Group.objects.get(name=groupname)
+            if custgroup not in request.user.groups.all():
+                 return render_to_response('404.html')
+            else:
+                pass 
+            
+            path = settings.APPLICATION_STORAGE
+            grouppath = os.path.join(path, str(groupname)) 
+            grouppath = os.path.join(grouppath,str(filename))
+            check_access_to_grouppath(grouppath)
+            readme_for_current_path = ""
+            
+            #look for README for the current file
+            readme_current = ""
+            
+            if os.path.isfile(grouppath):
+                readme_for_current_path = "%s%s"%(grouppath,settings.README_FILE_EXT)
+            else:
+                readme_for_current_path = "%s/%s"%(grouppath,settings.README_FILE)
+            try:
+                readme_current = open(readme_for_current_path, 'r')
+                #filelines = "%s by: %s"%(strip_tags(dialog_desc),request.user)
+                filelines = "%s"%(strip_tags(dialog_desc))
+                desc_logs = Desclogs(
+                    groupname = groupname,
+                    file_path = grouppath,
+                    user = request.user,
+                    old_desc = readme_current.read(),
+                )
+                desc_logs.save()
+                readme_current.close()
+                readme_current = open(readme_for_current_path, 'w')
+                readme_current.truncate()
+                readme_current.write(filelines)
+                readme_current.close()
+                success = True
+            except IOError as (errno, strerror):
+                error = "I/O error({0}): {1}".format(errno, strerror)    
+            except:
+                error =  "Unexpected error:", sys.exc_info()[0]
+                raise
+                
+    else:
+        pass
+            
+    if success:
+        if request.is_ajax():
+            results = {
+                "readme_for_current_path": readme_for_current_path,
+                "groupname": groupname,
+                "grouppath": grouppath,
+                "dialog_desc":filelines, 
+                "filename":filename,
+                "status":"success",
+                "message": "Saved.",
+            }
+            data = json.dumps(results)
+            return HttpResponse(data)
+    else:
+        data = json.dumps({"status":"failed", "error":error, "data":request.POST, 'grouppath': grouppath})
+        return HttpResponse(data)
+        
 @login_required
 def add_comment(request,groupname,filename):
     """
