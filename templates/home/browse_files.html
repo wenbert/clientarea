@@ -64,7 +64,7 @@
                 <input type="hidden" class="filename" value="{{ directory.path|urlencode }}"/> 
                 <input type="hidden" class="groupname" value="{{ groupname }}"/> 
                 <input type="hidden" class="file_row" value="row{{directory.id}}"/> 
-                <div class="edit_desc">[edit]</div>
+                <div class="edit_desc">edit</div>
             </td>
         </tr>
         {% endfor %}
@@ -105,7 +105,7 @@
             <input type="hidden" class="filename" value="{{ file.path|urlencode }}"/> 
             <input type="hidden" class="groupname" value="{{ groupname }}"/> 
             <input type="hidden" class="file_row" value="row{{file.id}}"/> 
-            <div class="edit_desc">[edit]</div>
+            <div class="edit_desc">edit</div>
         </td>
     </tr>
     {% endfor %}
@@ -140,11 +140,16 @@ $(document).ready(function(){
 		    console.log("dialog_groupname: "+groupname)
 		    console.log("dialog_filename: "+filename)
     });
+    
+    $("#cancel_button").click(function(){
+        $( "#dialog" ).dialog('close');
+    });
+    
     $("#save_button").click(function(){
         $(this).attr("disabled", "true");
-        save_data()
-        
+        save_data()  
     });
+
     
     function save_data() {
         $.post("/home/save_readme/", { 
@@ -184,6 +189,7 @@ $(document).ready(function(){
         {% csrf_token %}
         {{form}}
     <input type="button" id="save_button" value="Save Description"/>
+    <input type="button" id="cancel_button" value="Cancel"/>
     </form>
 </div>
 {% endblock %}
