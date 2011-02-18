@@ -13,6 +13,7 @@ class Desclogs(models.Model):
     old_desc = models.TextField()
     datetime  = models.DateTimeField(auto_now=True, auto_now_add=True,\
                                             verbose_name='Datetime')
+    
 
 class Filecomments(models.Model):
     """

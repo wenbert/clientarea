@@ -59,8 +59,8 @@
             <td class="small_text">{{directory.size}}</td>
             <!--<td><a href="/home/download_dir_as_zip/{{groupname}}/?dir={{directory.path|urlencode }}"><img src="/images/icons/page_white_compressed.png"/></a></td>-->
             <td class="small_text"> 
-                <div class="readme" id="row{{file.id}}">{{directory.readme}}</div>
-                <span>readme updated: </span><span class="readme_updated" id="readmerow{{file.id}}">{{directory.readme_last_modified}}</span>
+                <div class="readme" id="row{{directory.id}}">{{directory.readme}}</div>
+                <span>readme updated: </span><span class="readme_updated" id="readmerow{{directory.id}}">{{directory.readme_last_modified}}</span>
                 <input type="hidden" class="filename" value="{{ directory.path|urlencode }}"/> 
                 <input type="hidden" class="groupname" value="{{ groupname }}"/> 
                 <input type="hidden" class="file_row" value="row{{directory.id}}"/> 
@@ -141,7 +141,9 @@ $(document).ready(function(){
 		    console.log("dialog_filename: "+filename)
     });
     $("#save_button").click(function(){
+        $(this).attr("disabled", "true");
         save_data()
+        
     });
     
     function save_data() {
@@ -155,15 +157,18 @@ $(document).ready(function(){
                 data = json_parse(data); //You must get this file: http://www.JSON.org/json_parse.js
                 
                 if(data.status=="success") {
-                    $("#"+file_row).text(data.dialog_desc)
-                    $("#readme"+file_row).text('just now')
-                    $( "#dialog" ).dialog('close')
-                    console.log(">>>: "+file_row)
+                    $("#"+file_row).text(data.dialog_desc);
+                    $("#readme"+file_row).text('just now');
+                    $( "#dialog" ).dialog('close');
+                    $(this).removeAttr("disabled");
+                    console.log(">>>: "+file_row);
+                } else if (data.status=="forbidden") {
+                    alert('You are not permitted to do this action');
                 } else {
-                    console.log("status: "+data.status)
-                    console.log("error: "+data.error)
-                    console.log("grouppath: "+data.grouppath)
-                    console.log("POST DATA: "+data.data)
+                    console.log("status: "+data.status);
+                    console.log("error: "+data.error);
+                    console.log("grouppath: "+data.grouppath);
+                    console.log("POST DATA: "+data.data);
                     $.each(data.data, function(i, n){
                         console.log(">"+i+": "+n);
                     });

@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^$', home),
     (r'^home/directories', directories),
+    (r'^home/forbidden', forbidden),
     (r'^home/browse_files/(?P<groupname>[-\w]+)', browse_files),    
     (r'^home/download_dir_as_zip/(?P<groupname>\w+)', download_dir_as_zip),
     (r'^home/download/(?P<groupname>\w+)/(?P<filename>.*)$', download),

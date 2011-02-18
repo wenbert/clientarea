@@ -18,6 +18,7 @@ import simplejson as json
 from home.models import *
 from user import *
 from django.utils.html import strip_tags
+from django.contrib.auth.decorators import permission_required
 
 @login_required  
 def home(request):
@@ -154,6 +155,7 @@ def browse_files(request,groupname):
                 #get current readme for each directory displayed
                 readme = os.path.join(complete_filepath, settings.README_FILE)
                 if os.path.exists(str(readme)):
+                    readme_last_modified = pretty_date(os.path.getmtime(readme))
                     readme = open(readme).read()
                 else:
                     readme = '-'
@@ -216,6 +218,7 @@ def browse_files(request,groupname):
                           data, context_instance=RequestContext(request))
 
 @login_required
+@permission_required('home.add_desclogs',login_url='/home/forbidden')
 def save_readme(request):
     """
     create or edit the .README file
@@ -225,8 +228,7 @@ def save_readme(request):
     filelines = ''
     
     if request.method == 'POST' and request.is_ajax():
-        
-        
+            
         form = EditDescForm(request.POST)
         if form.is_valid():
             
@@ -255,16 +257,22 @@ def save_readme(request):
                 readme_for_current_path = "%s/%s"%(grouppath,settings.README_FILE)
             try:
                 readme_current = open(readme_for_current_path, 'r')
-                #filelines = "%s by: %s"%(strip_tags(dialog_desc),request.user)
-                filelines = "%s"%(strip_tags(dialog_desc))
-                desc_logs = Desclogs(
-                    groupname = groupname,
-                    file_path = grouppath,
-                    user = request.user,
-                    old_desc = readme_current.read(),
-                )
-                desc_logs.save()
+                readme_current_text = readme_current.read()
                 readme_current.close()
+            except:
+                readme_current_text = '-'
+                
+            #filelines = "%s by: %s"%(strip_tags(dialog_desc),request.user)
+            filelines = "%s"%(strip_tags(dialog_desc))
+            desc_logs = Desclogs(
+                groupname = groupname,
+                file_path = grouppath,
+                user = request.user,
+                old_desc = readme_current_text,
+            )
+            desc_logs.save()
+            
+            try:
                 readme_current = open(readme_for_current_path, 'w')
                 readme_current.truncate()
                 readme_current.write(filelines)
@@ -295,7 +303,17 @@ def save_readme(request):
     else:
         data = json.dumps({"status":"failed", "error":error, "data":request.POST, 'grouppath': grouppath})
         return HttpResponse(data)
-        
+
+def forbidden(request):
+    """
+    returns status==forbidden for AJAX requests.
+    """
+    results = {
+        "status": "forbidden",
+    }
+    data = json.dumps(results)
+    return HttpResponse(data)
+
 @login_required
 def add_comment(request,groupname,filename):
     """
