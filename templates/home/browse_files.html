@@ -2,8 +2,14 @@
 {% block content %}
 
 <div class="span-24 last">
-    <h2><span class="grey">Current Directory:</span> <b>{{current_directory}}</b></h2>
+    <a href="/message/post_message/{{groupid}}">Post a message in this group.</a>
 </div>
+
+<div class="span-24 last">
+    <h2><span class="grey">Current Directory:</span> <b>{{current_directory}}</b></h2>
+    <a href="/message/post_message">Upload a file to this directory.</a>
+</div>
+
 <div class="span-24 last"> 
     <div class="cornerBox">
         <div class="corner TL"></div>
@@ -64,7 +70,11 @@
                 <input type="hidden" class="filename" value="{{ directory.path|urlencode }}"/> 
                 <input type="hidden" class="groupname" value="{{ groupname }}"/> 
                 <input type="hidden" class="file_row" value="row{{directory.id}}"/> 
-                <div class="edit_desc">edit</div>
+                {% if perms.home.add_desclogs %}
+                    <div class="edit_desc">edit</div>
+                {% else %}
+                    &nbsp;
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
@@ -105,7 +115,11 @@
             <input type="hidden" class="filename" value="{{ file.path|urlencode }}"/> 
             <input type="hidden" class="groupname" value="{{ groupname }}"/> 
             <input type="hidden" class="file_row" value="row{{file.id}}"/> 
-            <div class="edit_desc">edit</div>
+            {% if perms.home.add_desclogs %}
+                <div class="edit_desc">edit</div>
+            {% else %}
+                &nbsp;
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

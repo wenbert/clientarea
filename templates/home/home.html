@@ -9,17 +9,24 @@
     Welcome to our client area.
     </p>
     {% if user.groups.all %}
-    <p>
-    You can start to download your files by clicking on the directory links below:
-    </p>
-    <p>
-    {% for group in user.groups.all %}
-        <img src="/images/icons/drive_go.png"/> <a href="/home/browse_files/{{group}}">{{group}}</a><br/>
-    {% endfor %}
-    </p>
+        <table>
+            <tr>
+                <th>Group</th>
+                <th>Files</th>
+                <th>Messages</th>
+            </tr>
+        {% for group in user.groups.all %}
+            <tr>
+                <td><b>{{group}}</b></td>
+                <td><img src="/images/icons/drive_go.png"/> <a href="/home/browse_files/{{group}}">{{group}} files</a></td>
+                <td><img src="/images/icons/email.png" valign="center"/> <a href="/home/browse_files/{{group}}">{{group}} messages (2 new)</a></td>
+            </tr>    
+        {% endfor %}
+        </table>
     {% else %}
     <p>You do not belong to any group yet. Please contact the site administrator.</p>
     {% endif %}
     </p>
+    
 </div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from home.views import *
+from message.views import *
 from accounts.views import *
 from accounts.forms import ProfileForm
 
@@ -25,6 +26,8 @@ urlpatterns = patterns('',
     (r'^home/save_readme', save_readme),
     (r'^home/add_comment/(?P<groupname>\w+)/(?P<filename>.*)$', add_comment),
     (r'^home/download_file_as_zip/(?P<groupname>\w+)/(?P<filename>.*)$', download_file_as_zip),
+    (r'^message/dashboard', dashboard),
+    (r'^message/post_message/(?P<groupid>[-\w]+)', post_message),
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/', include('registration.backends.default.urls')),
     #(r'^accounts/', include('accounts.urls')),

@@ -51,7 +51,7 @@ def browse_files(request,groupname):
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
     else:
-        pass
+        groupid = custgroup.id
         
     #complete path of the directory with the groupname
     grouppath = os.path.join(path, str(groupname)) 
@@ -206,6 +206,7 @@ def browse_files(request,groupname):
         "grouppath": grouppath,
         "current_directory": os.path.basename(grouppath),
         "groupname": groupname,
+        "groupid":groupid,
         "url_pieces": url_pieces,
         "crumbs": crumbs,
         "readme_for_current_dir": readme_for_current_dir,
@@ -218,7 +219,7 @@ def browse_files(request,groupname):
                           data, context_instance=RequestContext(request))
 
 @login_required
-@permission_required('home.add_desclogs',login_url='/home/forbidden')
+@permission_required('home.add_desclogs')
 def save_readme(request):
     """
     create or edit the .README file
