@@ -13,6 +13,8 @@ from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.contrib import messages
+from django.http import HttpResponseRedirect, Http404
 
 @login_required  
 def dashboard(request):
@@ -23,6 +25,7 @@ def dashboard(request):
 def post_message(request, groupid):
     path = settings.APPLICATION_STORAGE
     data = {}
+    success = False
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -30,18 +33,45 @@ def post_message(request, groupid):
         return render_to_response('404.html')
     else:
         pass
-    
-    form = AddMessageForm(
-            initial={'groupname': custgroup.name},
-        )
         
-    form.fields['categories'].choices = \
-            [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
-    
+    if request.method == 'POST':
+        form = AddMessageForm(request.POST,
+                    initial={'groupname': custgroup.name,'groupid': groupid}
+               )
+        
+        form.fields['category'].choices = \
+                [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
+        
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            body = form.cleaned_data['body']
+            groupid = form.cleaned_data['groupid']
+            category = Category.objects.get(id=form.cleaned_data['category'])
+            post = Post(title=title, body=body, group=custgroup, category=category)
+            post.save()
+            success = True
+            
+    else:
+        form = AddMessageForm(
+                initial={'groupname': custgroup.name,'groupid': groupid},
+            )
+            
+        form.fields['category'].choices = \
+                [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
+        
+        
+        
     data = {
-        "groupid": groupid,
-        "groupname": custgroup.name,
-        "form": form,
-    }
-    return render_to_response("message/post_message.html",
+            "groupid": groupid,
+            "groupname": custgroup.name,
+            "form": form,
+        }
+        
+    if success:
+        messages.add_message(request, messages.SUCCESS, 'Message was successfuly posted.')
+        return HttpResponseRedirect('/message/dashboard') 
+        """return render_to_response("message/dashboard.html",
+                          data, context_instance=RequestContext(request))"""
+    else:
+        return render_to_response("message/post_message.html",
                           data, context_instance=RequestContext(request))

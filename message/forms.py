@@ -21,9 +21,9 @@ NOTIFY_GROUP_MEMBER_CHOICES = ((1,'Group Member 1'),
 
 class AddMessageForm(forms.Form):
     title = forms.CharField(max_length=250)
-    groupname = forms.CharField(widget=forms.HiddenInput) 
+    groupid = forms.CharField(widget=forms.HiddenInput) 
     #categories = forms.ChoiceField(choices = CATEGORY_CHOICES, required=True) 
-    categories = forms.ChoiceField() 
+    category = forms.ChoiceField() 
     body = forms.CharField(widget=forms.Textarea)
     
     
