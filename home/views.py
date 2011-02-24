@@ -17,11 +17,13 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import simplejson as json
 from home.models import *
 from user import *
+from django.contrib import messages
 from django.utils.html import strip_tags
 from django.contrib.auth.decorators import permission_required
 
 @login_required  
-def home(request):
+def dashboard(request):
+    
     data = {}    
     return render_to_response("home/home.html",
                           data, context_instance=RequestContext(request))

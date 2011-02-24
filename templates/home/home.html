@@ -13,13 +13,15 @@
             <tr>
                 <th>Group</th>
                 <th>Files</th>
-                <th>Messages</th>
+                <th>All messages</th>
+                <th>Messages by category</th>
             </tr>
         {% for group in user.groups.all %}
             <tr>
                 <td><b>{{group}}</b></td>
                 <td><img src="/images/icons/drive_go.png"/> <a href="/home/browse_files/{{group}}">{{group}} files</a></td>
-                <td><img src="/images/icons/email.png" valign="center"/> <a href="/home/browse_files/{{group}}">{{group}} messages (2 new)</a></td>
+                <td><a href="/message/group/{{group.id}}">{{group}} messages</a></td>
+                <td>List categories with message count here</td>
             </tr>    
         {% endfor %}
         </table>

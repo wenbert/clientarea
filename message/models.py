@@ -23,6 +23,7 @@ class Post(models.Model):
     published = models.DateTimeField(default=datetime.now)
     category = models.ForeignKey(Category)
     group = models.ForeignKey(Group)
+    user = models.ForeignKey(User)
     
     def __unicode__(self):
         return self.title
