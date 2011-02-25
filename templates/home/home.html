@@ -18,10 +18,19 @@
             </tr>
         {% for group in user.groups.all %}
             <tr>
-                <td><b>{{group}}</b></td>
-                <td><img src="/images/icons/drive_go.png"/> <a href="/home/browse_files/{{group}}">{{group}} files</a></td>
+                <td>
+                    <b>{{group}}</b><br/>
+                    <a href="/message/post_message/{{group.id}}"><img src="/images/icons/email_edit.png" border="0" title="Post message for {{group}} group." alt="Post message for {{group}} group."/></a>
+                </td>
+                <td><a href="/home/browse_files/{{group}}">view {{group}} files</a></td>
                 <td><a href="/message/group/{{group.id}}">{{group}} messages</a></td>
-                <td>List categories with message count here</td>
+                <td>
+                    {%for group_id, category_id, category_name in categories%}
+                        {% if group_id == group.id%}
+                            <a href="/message/cat/{{group_id}}/{{category_id}}">{{category_name}}</a>
+                        {% endif %}
+                    {% endfor %}
+                </td>
             </tr>    
         {% endfor %}
         </table>

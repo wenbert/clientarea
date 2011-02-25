@@ -29,7 +29,7 @@ def allmessages(request):
     return render_to_response("message/dashboard.html",
                           data, context_instance=RequestContext(request))
                           
-@login_required                                                
+                                                
 def post_message(request, groupid):
     path = settings.APPLICATION_STORAGE
     data = {}
@@ -81,21 +81,22 @@ def post_message(request, groupid):
         
     if success:
         messages.add_message(request, messages.SUCCESS, 'Message was successfuly posted.')
-        return HttpResponseRedirect("/message/view/%d" % (post.id),\
-                data, context_instance=RequestContext(request)) 
+        #return HttpResponseRedirect('/message/dashboard') 
+        #return HttpResponseRedirect("/message/view/%s" % (post.id),data, context_instance=RequestContext(request)) 
+        return HttpResponseRedirect("/message/view/%s" % (post.id)) 
         
     else:
         return render_to_response("message/post_message.html",
                           data, context_instance=RequestContext(request))
 
 @login_required            
-def view(request, message_id):
+def view(request, messageid):
     """
     View a message.
     """
     
     error = None
-    message = get_object_or_404(Post, id=message_id)
+    message = get_object_or_404(Post, id=messageid)
     custgroup = Group.objects.get(id=message.group_id)
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
@@ -109,6 +110,9 @@ def view(request, message_id):
     
 @login_required
 def by_group(request, groupid):
+    """
+    Displays messages by group.
+    """
     data = {}
     success = False
     
@@ -119,10 +123,34 @@ def by_group(request, groupid):
     else:
         pass
         
-    posts = get_list_or_404(Post, group=groupid)
+    #posts = get_list_or_404(Post, group=groupid)
+    posts = Post.objects.filter(group=groupid)
     data = {
             'groupname':custgroup.name,
             'posts':posts,
     }
     return render_to_response('message/by_group.html', data,context_instance=RequestContext(request))
+    
+@login_required
+def by_category(request,groupid ,categoryid):
+    """
+    Displays messages by category.
+    """
+    data = {}
+    success = False
+    
+    #check if user is member of group
+    custgroup = Group.objects.get(id=groupid)
+    if custgroup not in request.user.groups.all():
+        return render_to_response('404.html')
+    else:
+        pass
+        
+    #posts = get_list_or_404(Post, category=categoryid)
+    posts = Post.objects.filter(category=categoryid)
+    data = {
+            'groupname':custgroup.name,
+            'posts':posts,
+    }
+    return render_to_response('message/by_category.html', data,context_instance=RequestContext(request))
     

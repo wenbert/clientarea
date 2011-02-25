@@ -12,6 +12,7 @@ from home.forms import *
 from django.core.exceptions import ObjectDoesNotExist
 import datetime
 from home.models import *
+from message.models import *
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 import simplejson as json
@@ -23,8 +24,16 @@ from django.contrib.auth.decorators import permission_required
 
 @login_required  
 def dashboard(request):
-    
-    data = {}    
+    #Blog.objects.filter(entry__authors__name='Lennon')')
+    categories = []
+    for group in request.user.groups.all():
+        categories += [(group.id, x.id, x.name) for x in Category.objects.filter(group=group.id).order_by('name')]
+        
+    #[(x.id, x.name) for x in Category.objects.filter(group=groupid)]
+
+    data = {
+        'categories':categories,
+    }    
     return render_to_response("home/home.html",
                           data, context_instance=RequestContext(request))
 @login_required
