@@ -140,7 +140,12 @@ def post_message(request, groupid):
             return HttpResponseRedirect("/message/view/%s" % (post.id)) 
         
     else:
-        return render_to_response("message/post_message.html",
+        if postid:
+            #return HttpResponseRedirect("/message/view/%s?error=1" % (postid)) 
+            return render_to_response("message/view_message.html",
+                          data, context_instance=RequestContext(request))
+        else:    
+            return render_to_response("message/post_message.html",
                           data, context_instance=RequestContext(request))
 
 @login_required            
@@ -150,8 +155,17 @@ def view(request, messageid):
     """
     
     error = None
+    """
+    not really an error but from the ?error=1
+    1 => "Please fill out all the required fields."
+    """
+    error_passed = request.GET.get('error')
+    if error_passed == "1":
+        messages.add_message(request, messages.ERROR, 'Please fill out all the required fields.')
+    
     message = get_object_or_404(Post, id=messageid)
     custgroup = Group.objects.get(id=message.group_id)
+    
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
     else:
@@ -170,7 +184,7 @@ def view(request, messageid):
                 }
         )
         
-    comments = Comment.objects.filter(post=message)
+    comments = Comment.objects.filter(post=message).order_by('-comment__published')
    
     data = {
             'commentform': commentform,
@@ -227,7 +241,7 @@ def by_category(request,groupid ,categoryid):
     
     category = Category.objects.get(id=categoryid)    
     #posts = get_list_or_404(Post, category=categoryid)
-    posts = Post.objects.filter(category=categoryid,is_comment=0)
+    posts = Post.objects.filter(category=categoryid,is_comment=0).order_by('-published')
     all_posts = []
    
     for p in posts:

@@ -52,7 +52,7 @@
     
     {% if messages %}
     <div class="span-24 last">
-    <ul class="messages">
+    <ul class="messages" id="message_box">
         {% for message in messages %}
         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
@@ -67,5 +67,12 @@
     </div>
     {% endblock %}
 </div>
+<script>
+$(document).ready(function(){
+    $("#message_box").click(function(event){
+        $(this).fadeOut();
+    });
+});
+</script>
 </body>
 </html>

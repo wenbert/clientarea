@@ -3,7 +3,7 @@
 <div class="span-24 last">
     <h2>{{message.title}}</h2>
     <div> 
-        Posted {{message.published|timesince}} ago by: <a href="/profiles/{{message.user}}">{{message.user}}</a> 
+        Posted on {{message.published}} or {{message.published|timesince}} ago by: <a href="/profiles/{{message.user}}">{{message.user}}</a> 
         under 
         <a href="/message/cat/{{message.group.id}}/{{message.category.id}}">{{message.category}}</a>
     </div>
@@ -14,27 +14,52 @@
     </p>
 </div>
 <div class="span-24 last">
-    COMMENT:
+    <div  id="dialog">
     <form action="/message/post_message/{{message.group.id}}?postid={{message.id}}" method="POST">
     {% csrf_token %}
-    {{commentform.as_p}}
-    <input type="submit" id="save_button" value="Post this comment"/>
+    <table class="comment_form_table">
+    {{commentform.as_table}}
+    </table>
+    <input type="submit" id="save_button" value="Post reply"/>
     </form>
+    </div>
 </div>
 <div class="span-24 last">
-    <h2>Comments</h2>
+    <h2>Replies</h2>
     {% if comments%}
         {%for comment in comments%}
-            <b>{{comment.comment.title}}</b>
-            by: 
-           {{comment.comment.user}} 
-           {{comment.comment.published|timesince}} 
-           <p>
-           {{comment.comment}} 
-           </p>
+            <div>
+               <h3 class="comment_title"><a name="comment_{{comment.comment.id}}" href="#comment_{{comment.comment.id}}">{{comment.comment.title}}</a></h3>
+               <div class="comment_meta">by: 
+               <a href="/profiles/{{comment.comment.user}}">{{comment.comment.user}}</a>
+               {{comment.comment.published}} or {{comment.comment.published|timesince}} ago
+                </div>
+               <p class="comment_p">
+               {{comment.comment.body}} 
+               </p>
+            </div>
         {%endfor%}
         
     {%endif%}
     
 </div>
+<script>
+$(document).ready(function(){
+    
+    $("form").submit(function() {
+        if($("#id_title").val()=="") {
+            $("#id_title").focus();
+            alert("Please provide a title for your reply.")
+            return false;
+        }
+        if($("#id_body").val()=="") {
+            $("#id_body").focus();
+            alert("Please provide some content for your reply.")
+            return false;
+        }
+        return true;
+    });
+});
+</script>
+
 {% endblock %}
