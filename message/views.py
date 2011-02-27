@@ -134,7 +134,10 @@ def post_message(request, groupid):
         messages.add_message(request, messages.SUCCESS, 'Message was successfuly posted.')
         #return HttpResponseRedirect('/message/dashboard') 
         #return HttpResponseRedirect("/message/view/%s" % (post.id),data, context_instance=RequestContext(request)) 
-        return HttpResponseRedirect("/message/view/%s" % (post.id)) 
+        if is_comment:
+            return HttpResponseRedirect("/message/view/%s" % (message.id)) 
+        else:
+            return HttpResponseRedirect("/message/view/%s" % (post.id)) 
         
     else:
         return render_to_response("message/post_message.html",
