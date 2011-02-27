@@ -9,27 +9,27 @@
     Welcome to our client area.
     </p>
     {% if user.groups.all %}
-        <table>
-            <tr>
+        <table >
+            <tr VALIGN=TOP>
                 <th>Group</th>
                 <th>Files</th>
-                <th>All messages</th>
                 <th>Messages by category</th>
             </tr>
         {% for group in user.groups.all %}
             <tr>
-                <td>
+                <td  VALIGN="top">
                     <b>{{group}}</b><br/>
                     <a href="/message/post_message/{{group.id}}"><img src="/images/icons/email_edit.png" border="0" title="Post message for {{group}} group." alt="Post message for {{group}} group."/></a>
                 </td>
-                <td><a href="/home/browse_files/{{group}}">view {{group}} files</a></td>
-                <td><a href="/message/group/{{group.id}}">{{group}} messages</a></td>
-                <td>
+                <td  VALIGN="top"><a href="/home/browse_files/{{group}}">view {{group}} files</a></td>
+                <td  VALIGN="top">
+                    <ul>
                     {%for group_id, category_id, category_name in categories%}
                         {% if group_id == group.id%}
-                            <a href="/message/cat/{{group_id}}/{{category_id}}">{{category_name}}</a>
+                            <li><a href="/message/cat/{{group_id}}/{{category_id}}">{{category_name}}</a></li>
                         {% endif %}
                     {% endfor %}
+                    </ul>
                 </td>
             </tr>    
         {% endfor %}

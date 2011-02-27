@@ -34,3 +34,15 @@ class Post(models.Model):
     
         super(Post, self).save(*args, **kwargs)
     
+class Unread(models.Model):
+    """
+    When a user posts a message:
+    - Save to Unread model including to all the members of the group
+    
+    When a user reads a message:
+    - Delete the item (user id + post id) from the Unread model 
+    """
+    user = models.ForeignKey(User)
+    post = models.ForeignKey(Post)
+    marked_unread_on = models.DateTimeField(null=True, blank=True)
+    marked_read_on = models.DateTimeField(null=True, blank=True)

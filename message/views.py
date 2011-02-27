@@ -34,6 +34,7 @@ def post_message(request, groupid):
     path = settings.APPLICATION_STORAGE
     data = {}
     success = False
+    categoryid = request.GET.get('categoryid')
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -41,7 +42,18 @@ def post_message(request, groupid):
         return render_to_response('404.html')
     else:
         pass
-        
+    
+    #check if category is allowed for user
+    try:
+        cat = Category.objects.get(id=categoryid)
+        if cat.group not in request.user.groups.all():
+            return render_to_response('404.html')
+        else:
+            pass
+    except ObjectDoesNotExist:
+        pass
+    
+    
     if request.method == 'POST':
         form = AddMessageForm(request.POST,
                     initial={'groupname': custgroup.name,'groupid': groupid}
@@ -63,18 +75,34 @@ def post_message(request, groupid):
                     category=category,
                     user=user)
             post.save()
+            
+            """
+            Get all users in the group an save to Unread model
+            """
+            groupusers = User.objects.filter(groups__name=custgroup.name)
+            for g in groupusers:
+                unread = Unread(
+                         user = g,
+                         post = post,
+                        )
+                unread.save()
             success = True
             
     else:
         form = AddMessageForm(
                 initial={'groupname': custgroup.name,'groupid': groupid},
             )
-            
-        form.fields['category'].choices = \
+        
+        if(categoryid):
+            form.fields['category'].choices = \
+                [(x.id, x.name) for x in Category.objects.filter(id=categoryid)]
+        else:
+            form.fields['category'].choices = \
                 [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
 
     data = {
             "groupid": groupid,
+            'categoryid': categoryid,
             "groupname": custgroup.name,
             "form": form,
         }
@@ -102,7 +130,14 @@ def view(request, messageid):
          return render_to_response('404.html')
     else:
         pass 
-        
+    
+    #mark the item as read in the Unread model
+    unread = get_object_or_404(Unread, user=request.user, post=message)
+    #unread.marked_read_on = datetime.now().isoformat()
+    #2011-02-25 04:35:23
+    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+    unread.save()
+    
     data = {
             'message':message,
         }
@@ -124,10 +159,18 @@ def by_group(request, groupid):
         pass
         
     #posts = get_list_or_404(Post, group=groupid)
+    #posts = Post.objects.filter(group=groupid)
     posts = Post.objects.filter(group=groupid)
+    
+    all_posts = []
+   
+    for p in posts:
+        all_posts += [(x.id, x.marked_read_on, p) for x in p.unread_set.filter(post=p.id)]
+    
     data = {
             'groupname':custgroup.name,
-            'posts':posts,
+            #'posts':posts,
+            'posts': all_posts,
     }
     return render_to_response('message/by_group.html', data,context_instance=RequestContext(request))
     
@@ -145,12 +188,21 @@ def by_category(request,groupid ,categoryid):
         return render_to_response('404.html')
     else:
         pass
-        
+    
+    category = Category.objects.get(id=categoryid)    
     #posts = get_list_or_404(Post, category=categoryid)
     posts = Post.objects.filter(category=categoryid)
+    all_posts = []
+   
+    for p in posts:
+        all_posts += [(x.id, x.marked_read_on, p) for x in p.unread_set.filter(post=p.id)]
+    
     data = {
+            'groupid':custgroup.id,
             'groupname':custgroup.name,
-            'posts':posts,
+            'categoryid':category.id,
+            'categoryname':category.name,
+            'posts':all_posts,
     }
     return render_to_response('message/by_category.html', data,context_instance=RequestContext(request))
     

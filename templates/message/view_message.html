@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="span-24 last">
+    <h2>{{message.title}}</h2>
+    <div> 
+        Posted {{message.published|timesince}} ago by: <a href="/profiles/{{message.user}}">{{message.user}}</a> 
+        under 
+        <a href="/message/cat/{{message.group.id}}/{{message.category.id}}">{{message.category}}</a>
+    </div>
+</div>
+<div class="span-24 last">
+    <p>
+    {{message.body}}
+    </p>
+</div>
+{% endblock %}

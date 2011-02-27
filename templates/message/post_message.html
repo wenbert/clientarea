@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="span-24 last">
+    <h2>Post a message to {{groupname}}</h2>
+</div>
+<div class="span-24 last">
+    <form action="/message/post_message/{{groupid}}" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" id="save_button" value="Post this message"/>
+    </form>
+</div>
+{% endblock %}

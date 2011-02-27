@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="span-24 last">
+    <h2>{{groupname}}: {{categoryname}} messages</h2>
+</div>
+
+<div class="span-24 last">
+    <a href="/message/post_message/{{groupid}}?categoryid={{categoryid}}">Post a message in this category</a>
+</div>
+<div class="span-24 last">
+    <table>
+    <tr>
+        <th>Title</th>
+        <th>Date posted</th>
+        <th>Posted by</th>
+        <th>Replies</th>
+    </tr>
+    {% if posts%}
+        {%for unread_id, read_on, post in posts%}
+        <tr>
+            <td>
+                {%if read_on%}
+                    <a href="/message/view/{{post.id}}">{{post.title}}</a>
+                {%else%}
+                    <img src="/images/icons/new.png"/><b><a href="/message/view/{{post.id}}">{{post.title}}</a></b>
+                {%endif%}
+            </td>
+            <td>{{post.published}}</td>
+            <td>{{post.user}}</td>
+            <td>[x] replies / 0 new (last reply posted on...)</td>
+        </tr>
+        {%endfor%}
+    {%else%}
+    <tr>
+        <td colspan="4">
+            No messages.
+        </td>
+    </tr>
+    {%endif%}
+    </table>
+</div>
+{% endblock %}
