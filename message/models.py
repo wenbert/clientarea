@@ -18,21 +18,28 @@ class Category(models.Model):
  
 class Post(models.Model):
     title = models.CharField(max_length=250)
-    slug = models.SlugField(max_length=250, unique=True)
+    #slug = models.SlugField(max_length=250, unique=True)
     body = models.TextField()
     published = models.DateTimeField(default=datetime.now)
     category = models.ForeignKey(Category)
     group = models.ForeignKey(Group)
     user = models.ForeignKey(User)
+    is_comment = models.BooleanField(default=0)
     
     def __unicode__(self):
         return self.title
         
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.slug = slugify( self.title )
+    #def save(self, *args, **kwargs):
+    #    if not self.id:
+    #        self.slug = slugify( self.title )
+    #    super(Post, self).save(*args, **kwargs)
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, related_name='comment_parent')
+    comment = models.ForeignKey(Post)
     
-        super(Post, self).save(*args, **kwargs)
+    def __unicode__(self):
+        return comment.title
     
 class Unread(models.Model):
     """

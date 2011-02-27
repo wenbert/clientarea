@@ -34,7 +34,9 @@ def post_message(request, groupid):
     path = settings.APPLICATION_STORAGE
     data = {}
     success = False
+    is_comment = False
     categoryid = request.GET.get('categoryid')
+    postid= request.GET.get('postid')
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -68,13 +70,34 @@ def post_message(request, groupid):
             groupid = form.cleaned_data['groupid']
             category = Category.objects.get(id=form.cleaned_data['category'])
             user =  request.user
-            post = Post(
+                    
+            #check if postid exists
+            try:
+                message = Post.objects.get(id=postid)
+                post = Post(
                     title=title, 
                     body=body, 
                     group=custgroup, 
                     category=category,
-                    user=user)
+                    user=user,
+                    is_comment = 1
+                    )
+                is_comment = True
+            except ObjectDoesNotExist:
+                post = Post(
+                    title=title, 
+                    body=body, 
+                    group=custgroup, 
+                    category=category,
+                    user=user,)
+            
             post.save()
+            
+            if is_comment:
+                comment = Comment(post=message,comment=post)
+                comment.save()
+            else:
+                pass
             
             """
             Get all users in the group an save to Unread model
@@ -131,15 +154,25 @@ def view(request, messageid):
     else:
         pass 
     
-    #mark the item as read in the Unread model
     unread = get_object_or_404(Unread, user=request.user, post=message)
-    #unread.marked_read_on = datetime.now().isoformat()
-    #2011-02-25 04:35:23
-    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
-    unread.save()
+    if not unread.marked_read_on:
+        unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+        unread.save()
     
+    commentform = AddCommentForm(
+            initial={'postid': message.id,
+                    'groupname': custgroup.name,
+                    'groupid': message.group_id,
+                    'category': message.category_id,
+                }
+        )
+        
+    comments = Comment.objects.filter(post=message)
+   
     data = {
-            'message':message,
+            'commentform': commentform,
+            'message': message,
+            'comments': comments,
         }
     return render_to_response('message/view_message.html', data,context_instance=RequestContext(request))
     
@@ -191,11 +224,11 @@ def by_category(request,groupid ,categoryid):
     
     category = Category.objects.get(id=categoryid)    
     #posts = get_list_or_404(Post, category=categoryid)
-    posts = Post.objects.filter(category=categoryid)
+    posts = Post.objects.filter(category=categoryid,is_comment=0)
     all_posts = []
    
     for p in posts:
-        all_posts += [(x.id, x.marked_read_on, p) for x in p.unread_set.filter(post=p.id)]
+        all_posts += [(x.id, x.marked_read_on, p) for x in p.unread_set.filter(post=p.id,user=request.user)]
     
     data = {
             'groupid':custgroup.id,
