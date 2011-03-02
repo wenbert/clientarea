@@ -16,18 +16,34 @@
         <th>Replies</th>
     </tr>
     {% if posts%}
-        {%for unread_id, read_on, post in posts%}
+        {%for unread_id, read_on, post, unread_comment_count, all_comment_count in posts%}
         <tr>
             <td>
+                {%if not read_on%}
+                    <span class="home_unread">new</span>
+                {%endif%}
+                {%if unread_comment_count %}
+                    <span class="home_unread_replies">{{unread_comment_count}} new replies</span>
+                {%else%}
+                    &nbsp;
+                {%endif%}
+                
                 {%if read_on%}
                     <a href="/message/view/{{post.id}}">{{post.title}}</a>
                 {%else%}
-                    <img src="/images/icons/new.png"/><b><a href="/message/view/{{post.id}}">{{post.title}}</a></b>
+                    <b><a href="/message/view/{{post.id}}">{{post.title}}</a></b>
                 {%endif%}
             </td>
             <td>{{post.published}} / {{post.published|timesince}} ago</td>
             <td>{{post.user}}</td>
-            <td>[x] replies / 0 new (last reply posted on...)</td>
+            <td>Message has
+                {%if unread_comment_count %}
+                    {{unread_comment_count}} new replies
+                {%else%}
+                    &nbsp;
+                {%endif%}.
+                There are a total of {{all_comment_count}} replies in this message.
+            </td>
         </tr>
         {%endfor%}
     {%else%}

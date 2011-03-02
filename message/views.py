@@ -95,10 +95,10 @@ def post_message(request, groupid):
             
             if is_comment:
                 comment = Comment(post=message,comment=post)
-                comment.save()
+                comment.save()                    
             else:
                 pass
-            
+                
             """
             Get all users in the group an save to Unread model
             """
@@ -107,6 +107,8 @@ def post_message(request, groupid):
                 unread = Unread(
                          user = g,
                          post = post,
+                         category = category,
+                         marked_read_on = datetime.now().replace(microsecond=0).isoformat(' '),
                         )
                 unread.save()
             success = True
@@ -185,11 +187,24 @@ def view(request, messageid):
         )
         
     comments = Comment.objects.filter(post=message).order_by('-comment__published')
-   
+    #comments = Unread.objects.filter(post=message)
+    all_comments = []
+    """
+    for c in comments:
+       all_comments += [(x.id, x.marked_read_on, c.comment) \
+                        for x in c.post.unread_set.filter(post=c.id,user=request.user)]
+    """
+    for c in comments:
+        all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
+                        c.comment.published, c.comment.body, \
+                        Unread.objects.get(user=c.comment.user, post=c.comment).marked_read_on)]
+     
+       
     data = {
             'commentform': commentform,
             'message': message,
             'comments': comments,
+            'all_comments': all_comments,
         }
     return render_to_response('message/view_message.html', data,context_instance=RequestContext(request))
     
@@ -245,7 +260,11 @@ def by_category(request,groupid ,categoryid):
     all_posts = []
    
     for p in posts:
-        all_posts += [(x.id, x.marked_read_on, p) for x in p.unread_set.filter(post=p.id,user=request.user)]
+        all_posts += [(x.id, x.marked_read_on, p, \
+                        Unread.objects.filter(marked_read_on__isnull=True, post=p, category=p.category_id, user=request.user, post__is_comment=1), \
+                        Unread.objects.filter(category=p.category_id, user=request.user, post__is_comment=1).count(), \
+                    ) \
+                    for x in p.unread_set.filter(post=p.id,user=request.user)]
     
     data = {
             'groupid':custgroup.id,

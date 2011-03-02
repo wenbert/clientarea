@@ -27,21 +27,27 @@
 <div class="span-24 last">
     <h2>Replies</h2>
     {% if comments%}
-        {%for comment in comments%}
+        {%for id, comment_id, title, user, published, body, marked_read_on in all_comments%}
             <div>
-               <h3 class="comment_title"><a name="comment_{{comment.comment.id}}" href="#comment_{{comment.comment.id}}">{{comment.comment.title}}</a></h3>
-               <div class="comment_meta">by: 
-               <a href="/profiles/{{comment.comment.user}}">{{comment.comment.user}}</a>
-               {{comment.comment.published}} or {{comment.comment.published|timesince}} ago
+               <h3 class="comment_title">
+                   {%if marked_read_on%}
+                        <!-- <img src="/images/icons/flag_green.png" /> -->
+                   {%else%}
+                        <img src="/images/icons/flag_red.png" />
+                   {%endif%}
+                   <a name="comment_{{comment_id}}" href="#comment_{{comment_id}}">{{title}}</a>
+               </h3>
+               <div class="comment_meta">
+                by: 
+               <a href="/profiles/{{user}}">{{user}}</a>
+               {{published}} or {{published}} ago
                 </div>
                <p class="comment_p">
-               {{comment.comment.body}} 
+               {{body}}
                </p>
             </div>
         {%endfor%}
-        
     {%endif%}
-    
 </div>
 <script>
 $(document).ready(function(){

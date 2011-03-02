@@ -15,7 +15,8 @@ class Category(models.Model):
     
     def __unicode__(self):
         return self.name
- 
+
+
 class Post(models.Model):
     title = models.CharField(max_length=250)
     #slug = models.SlugField(max_length=250, unique=True)
@@ -51,5 +52,6 @@ class Unread(models.Model):
     """
     user = models.ForeignKey(User)
     post = models.ForeignKey(Post)
+    category = models.ForeignKey(Category)
     marked_unread_on = models.DateTimeField(null=True, blank=True)
     marked_read_on = models.DateTimeField(null=True, blank=True)

@@ -24,9 +24,20 @@
                 <td  VALIGN="top"><a href="/home/browse_files/{{group}}">view {{group}} files</a></td>
                 <td  VALIGN="top">
                     <ul>
-                    {%for group_id, category_id, category_name in categories%}
+                    {%for group_id, category_id, category_name, unread_count, unread_comment_count in categories%}
                         {% if group_id == group.id%}
-                            <li><a href="/message/cat/{{group_id}}/{{category_id}}">{{category_name}}</a></li>
+                            <li><a href="/message/cat/{{group_id}}/{{category_id}}">{{category_name}}</a> 
+                                {%if unread_count %}
+                                    <span class="home_unread">{{unread_count}} new messages</span>
+                                {%else%}
+                                    &nbsp;
+                                {%endif%}
+                                {%if unread_comment_count %}
+                                    <span class="home_unread_replies">{{unread_comment_count}} new replies</span>
+                                {%else%}
+                                    &nbsp;
+                                {%endif%}
+                            </li>
                         {% endif %}
                     {% endfor %}
                     </ul>

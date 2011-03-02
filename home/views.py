@@ -27,7 +27,11 @@ def dashboard(request):
     #Blog.objects.filter(entry__authors__name='Lennon')')
     categories = []
     for group in request.user.groups.all():
-        categories += [(group.id, x.id, x.name) for x in Category.objects.filter(group=group.id).order_by('name')]
+        categories += [(group.id, x.id, x.name, \
+                        Unread.objects.filter(marked_read_on__isnull=True, category=x.id, user=request.user, post__is_comment=0).count(), \
+                        Unread.objects.filter(marked_read_on__isnull=True, category=x.id, user=request.user, post__is_comment=1).count(), \
+                        ) \
+                      for x in Category.objects.filter(group=group.id).order_by('name')]
         
     #[(x.id, x.name) for x in Category.objects.filter(group=groupid)]
 
