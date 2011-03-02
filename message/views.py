@@ -104,12 +104,20 @@ def post_message(request, groupid):
             """
             groupusers = User.objects.filter(groups__name=custgroup.name)
             for g in groupusers:
+                """
                 unread = Unread(
                          user = g,
                          post = post,
                          category = category,
                          marked_read_on = datetime.now().replace(microsecond=0).isoformat(' '),
                         )
+                """
+                unread = Unread()
+                unread.user = g
+                unread.post = post
+                unread.category = category
+                if request.user == g:
+                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
                 unread.save()
             success = True
             
