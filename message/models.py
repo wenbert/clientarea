@@ -52,6 +52,7 @@ class Unread(models.Model):
     """
     user = models.ForeignKey(User)
     post = models.ForeignKey(Post)
+    comment = models.ForeignKey(Comment, null=True, blank=True)
     category = models.ForeignKey(Category)
     marked_unread_on = models.DateTimeField(null=True, blank=True)
     marked_read_on = models.DateTimeField(null=True, blank=True)

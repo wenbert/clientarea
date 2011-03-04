@@ -19,7 +19,7 @@
         {%for unread_id, read_on, post, unread_comment_count, all_comment_count in posts%}
         <tr>
             <td>
-                {%if not read_on%}
+                {%if not read_on %}
                     <span class="home_unread">new</span>
                 {%endif%}
                 {%if unread_comment_count %}
@@ -38,13 +38,14 @@
             <td>{{post.user}}</td>
             <td>Message has
                 {%if unread_comment_count %}
-                    {{unread_comment_count}} new replies
+                    {{unread_comment_count}} new replies.
                 {%else%}
                     &nbsp;
-                {%endif%}.
+                {%endif%}
                 There are a total of {{all_comment_count}} replies in this message.
             </td>
         </tr>
+
         {%endfor%}
     {%else%}
     <tr>
@@ -55,4 +56,7 @@
     {%endif%}
     </table>
 </div>
+{%for s in sql%}
+<div class="span-24 last" style="border: 1px solid #000; font-family:Courier;">{{s.sql}}</div>
+{%endfor%}
 {% endblock %}

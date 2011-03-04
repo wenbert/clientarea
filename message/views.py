@@ -22,6 +22,8 @@ from user import *
 from django.utils.html import strip_tags
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
+from django.db.models import Avg,Count
+from django.db import connection
 
 @login_required  
 def allmessages(request):
@@ -90,7 +92,8 @@ def post_message(request, groupid):
                     group=custgroup, 
                     category=category,
                     user=user,)
-            
+                is_comment = False
+                
             post.save()
             
             if is_comment:
@@ -104,20 +107,17 @@ def post_message(request, groupid):
             """
             groupusers = User.objects.filter(groups__name=custgroup.name)
             for g in groupusers:
-                """
-                unread = Unread(
-                         user = g,
-                         post = post,
-                         category = category,
-                         marked_read_on = datetime.now().replace(microsecond=0).isoformat(' '),
-                        )
-                """
                 unread = Unread()
                 unread.user = g
                 unread.post = post
                 unread.category = category
+                
                 if request.user == g:
                     unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+                    
+                if is_comment:
+                    unread.comment = comment
+                
                 unread.save()
             success = True
             
@@ -181,11 +181,17 @@ def view(request, messageid):
     else:
         pass 
     
-    unread = get_object_or_404(Unread, user=request.user, post=message)
-    if not unread.marked_read_on:
-        unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
-        unread.save()
-    
+    no_unread = True
+    try:
+        unread = Unread.objects.get(user=request.user, post=message)
+        if not unread.marked_read_on:
+            unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+            unread.save()
+            
+        no_unread = False
+    except ObjectDoesNotExist:
+        pass
+        
     commentform = AddCommentForm(
             initial={'postid': message.id,
                     'groupname': custgroup.name,
@@ -202,11 +208,16 @@ def view(request, messageid):
        all_comments += [(x.id, x.marked_read_on, c.comment) \
                         for x in c.post.unread_set.filter(post=c.id,user=request.user)]
     """
-    for c in comments:
-        all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
-                        c.comment.published, c.comment.body, \
-                        Unread.objects.get(user=c.comment.user, post=c.comment).marked_read_on)]
-     
+    if not no_unread:
+        for c in comments:
+            all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
+                            c.comment.published, c.comment.body, \
+                            #Unread.objects.get(user=c.comment.user, post=c.comment).marked_read_on)]
+                            Unread.objects.get(user=request.user, post=c.comment).marked_read_on)]
+    else:
+        for c in comments:
+            all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
+                            c.comment.published, c.comment.body)]
        
     data = {
             'commentform': commentform,
@@ -268,10 +279,26 @@ def by_category(request,groupid ,categoryid):
     all_posts = []
    
     for p in posts:
-        all_posts += [(x.id, x.marked_read_on, p, \
-                        Unread.objects.filter(marked_read_on__isnull=True, post=p, category=p.category_id, user=request.user, post__is_comment=1), \
-                        Unread.objects.filter(category=p.category_id, user=request.user, post__is_comment=1).count(), \
+        try:
+            marked = p.unread_set.get(post=p.id,user=request.user)
+
+        except ObjectDoesNotExist:
+            marked = None
+            
+        all_posts += [(x.id,\
+                        x.marked_read_on, \
+                        p, \
+                        Unread.objects.filter(marked_read_on__isnull=True, \
+                                              user=request.user,comment__post=p.id).count(), \
+                        Unread.objects.filter(user=request.user,comment__post=p.id).count(), \
                     ) \
+                    #for x in Unread.objects.filter(post__id=p.id).values('post').order_by().annotate(post_count=Count('post'))]
+                    #for x in Unread.objects.filter(post=p.id).values(post.id).order_by().annotate(Count('post'))]
+                    #for x in p.unread_set.filter(post=p.id).values('unread__post__id').annotate(Count('post')).order_by('post')]
+                    #for x in Unread.objects.filter(post=p.id).values(post_id).order_by().annotate(Count('post'))]
+                    #for x in p.unread_set.filter(post=p.id).values(unread.id).order_by().annotate(Count('post'))]
+                    #for x in p.unread_set.filter(post=p.id)]
+                    #for x in p.unread_set.filter(post=p.id).annotate(Count('post__id')).order_by('post')]
                     for x in p.unread_set.filter(post=p.id,user=request.user)]
     
     data = {
@@ -280,6 +307,7 @@ def by_category(request,groupid ,categoryid):
             'categoryid':category.id,
             'categoryname':category.name,
             'posts':all_posts,
+            'sql':connection.queries,
     }
     return render_to_response('message/by_category.html', data,context_instance=RequestContext(request))
     
