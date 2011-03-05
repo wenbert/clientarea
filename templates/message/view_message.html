@@ -26,16 +26,21 @@
 </div>
 <div class="span-24 last">
     <h2>Replies</h2>
+    
     {% if comments%}
         {%for id, comment_id, title, user, published, body, marked_read_on in all_comments%}
             <div>
                <h3 class="comment_title">
+                   <!-- <input type="checkbox" value="{{comment_id}}"/> -->
                    {%if marked_read_on%}
                         <!-- <img src="/images/icons/flag_green.png" /> -->
                    {%else%}
-                        <img src="/images/icons/flag_red.png" />
+                        <img title="flag_{{comment_id}}" alt="Mark as read" class="red_flag" src="/images/icons/flag_red.png" />
                    {%endif%}
-                   <a name="comment_{{comment_id}}" href="#comment_{{comment_id}}">{{title}}</a>
+                   
+                   <input type="hidden" value="{{comment_id}}" name="commentid" class="commentid" id="id_commentid">
+                   <a name="commendid{{comment_id}}" href="#comment_{{comment_id}}">{{title}}</a>
+                   
                </h3>
                <div class="comment_meta">
                 by: 
@@ -51,7 +56,27 @@
 </div>
 <script>
 $(document).ready(function(){
+    $(".red_flag").click(function(event){
+        //alert('mark for comment_id: '+$(this).parent().find("input[name=commentid]").val())
+        console.log($(this).parent().find("input[name=commentid]").val())
+        mark_as_read()
+    });
     
+    function mark_as_read() {
+        $.post("/message/mark_message_unread/",
+        {
+            csrfmiddlewaretoken: $("input[name='id_csrfmiddlewaretoken").val(),
+            commentid: $(this).parent().find("input[name=commentid]").val()
+        },function(data) {
+            /*success*/
+            console.log(data)
+        },'json');
+    }
+    
+    /**
+    Simple form validation.
+    Form is also checked in the backend.
+    */
     $("form").submit(function() {
         if($("#id_title").val()=="") {
             $("#id_title").focus();

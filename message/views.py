@@ -218,7 +218,9 @@ def view(request, messageid):
         for c in comments:
             all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
                             c.comment.published, c.comment.body)]
-       
+    
+   
+    
     data = {
             'commentform': commentform,
             'message': message,
@@ -311,3 +313,40 @@ def by_category(request,groupid ,categoryid):
     }
     return render_to_response('message/by_category.html', data,context_instance=RequestContext(request))
     
+@login_required
+def mark_message_unread(request):
+    """
+    Mark a single message/post as read.
+    """
+    success = False
+    error = None
+    
+    if request.method == 'POST':
+        form = CommentIdForm(request.POST)
+        if form.is_valid():
+            commentid = form.cleaned_data['commentid']
+            
+            post = get_object_or_404(Post, id=commentid)
+            #unread = Unread.objects.get(post=Post,user=request.user)
+            unread = get_object_or_404(Unread, post=Post,user=request.user)
+            if not unread.marked_read_on:
+                unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+                unread.save()
+            success = True
+            
+        else:
+            error = 'Form is not valid'
+    else:
+        pass
+
+    if success:
+        results = {
+            "status":"success",
+            "message": "Saved.",
+        }
+        data = json.dumps(results)
+        return HttpResponse(data)
+    else:
+        data = json.dumps({
+            "status":"failed", "error":error, "data":request.POST})
+        return HttpResponse(data)

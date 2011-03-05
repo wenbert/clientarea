@@ -38,11 +38,18 @@
             <td>{{post.user}}</td>
             <td>Message has
                 {%if unread_comment_count %}
-                    {{unread_comment_count}} new replies.
+                    {{unread_comment_count}} new
+                    {%if unread_comment_count > 1%}
+                        replies.
+                    {%else%}
+                        reply.
+                    {%endif%}
+                    
                 {%else%}
-                    &nbsp;
+                    no new replies.
                 {%endif%}
-                There are a total of {{all_comment_count}} replies in this message.
+                
+                All replies: {{all_comment_count}}
             </td>
         </tr>
 

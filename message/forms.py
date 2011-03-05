@@ -14,4 +14,8 @@ class AddCommentForm(forms.Form):
     groupid = forms.CharField(widget=forms.HiddenInput) 
     body = forms.CharField(widget=forms.Textarea)
     
+class CommentIdForm(forms.Form):
+    commentid = forms.CharField(widget=forms.HiddenInput)
+    commentid.widget.attrs['class'] = 'commentid'
+    
     
