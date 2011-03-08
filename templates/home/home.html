@@ -13,15 +13,20 @@
             <tr VALIGN=TOP>
                 <th>Group</th>
                 <th>Files</th>
-                <th>Messages by category</th>
+                {% if not user.userprofile.is_client %}
+                    <th>Messages by category</th>
+                {% endif %}
             </tr>
         {% for group in user.groups.all %}
             <tr>
                 <td  VALIGN="top">
                     <b>{{group}}</b><br/>
-                    <a href="/message/post_message/{{group.id}}"><img src="/images/icons/email_edit.png" border="0" title="Post message for {{group}} group." alt="Post message for {{group}} group."/></a>
+                    {% if not user.userprofile.is_client %}
+                        <a href="/message/post_message/{{group.id}}"><img src="/images/icons/email_edit.png" border="0" title="Post message for {{group}} group." alt="Post message for {{group}} group."/></a>
+                    {% endif %}
                 </td>
                 <td  VALIGN="top"><a href="/home/browse_files/{{group}}">view {{group}} files</a></td>
+                {% if not user.userprofile.is_client %}
                 <td  VALIGN="top">
                     <ul>
                     {%for group_id, category_id, category_name, unread_count, unread_comment_count in categories%}
@@ -42,6 +47,7 @@
                     {% endfor %}
                     </ul>
                 </td>
+                {%endif%}
             </tr>    
         {% endfor %}
         </table>

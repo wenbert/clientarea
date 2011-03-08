@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
+{% if not user.userprofile.is_client %}
 <div class="span-24 last">
     <a href="/message/post_message/{{groupid}}">Post a message in this group.</a>
 </div>
@@ -9,6 +10,9 @@
     <h2><span class="grey">Current Directory:</span> <b>{{current_directory}}</b></h2>
     <a href="/message/post_message">Upload a file to this directory.</a>
 </div>
+{%else%}
+<div class="span-24 last">&nbsp;</div>
+{% endif %}
 
 <div class="span-24 last"> 
     <div class="cornerBox">

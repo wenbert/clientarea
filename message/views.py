@@ -33,6 +33,11 @@ def allmessages(request):
                           
                                                 
 def post_message(request, groupid):
+    
+    """ do not show a message to a client"""
+    if request.user.userprofile.is_client:
+        return render_to_response('404.html')
+        
     path = settings.APPLICATION_STORAGE
     data = {}
     success = False
@@ -164,6 +169,10 @@ def view(request, messageid):
     View a message.
     """
     
+    """ do not show a message to a client"""
+    if request.user.userprofile.is_client:
+        return render_to_response('404.html')
+    
     error = None
     """
     not really an error but from the ?error=1
@@ -237,6 +246,10 @@ def by_group(request, groupid):
     data = {}
     success = False
     
+    """ do not show a message to a client"""
+    if request.user.userprofile.is_client:
+        return render_to_response('404.html')
+    
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
     if custgroup not in request.user.groups.all():
@@ -267,6 +280,10 @@ def by_category(request,groupid ,categoryid):
     """
     data = {}
     success = False
+    
+    """ do not show a message to a client"""
+    if request.user.userprofile.is_client:
+        return render_to_response('404.html')
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -319,6 +336,10 @@ def mark_message_unread(request):
     """
     success = False
     error = None
+    
+    """ do not show a message to a client"""
+    if request.user.userprofile.is_client:
+        return render_to_response('404.html')
     
     if request.method == 'POST':
         form = CommentIdForm(request.POST)

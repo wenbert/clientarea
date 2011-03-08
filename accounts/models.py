@@ -8,6 +8,7 @@ import os,sys
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True)
+    is_client = models.BooleanField(default=1, help_text="If a user is marked as a client, the user will not have access to Messages, etc.")
     #firstname       = models.CharField(max_length=250, verbose_name="First Name",blank=True, null=True)
     #lastname        = models.CharField(max_length=250, verbose_name="Last Name",blank=True, null=True)
     #email           = models.EmailField(verbose_name="Email",blank=True, null=True)
