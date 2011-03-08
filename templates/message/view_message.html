@@ -35,7 +35,7 @@
                    {%if marked_read_on%}
                         <!-- <img src="/images/icons/flag_green.png" /> -->
                    {%else%}
-                        <img title="flag_{{comment_id}}" alt="Mark as read" class="red_flag" src="/images/icons/flag_red.png" />
+                        <img id="flag_{{comment_id}}" title="flag_{{comment_id}}" alt="Mark as read" class="red_flag" src="/images/icons/flag_red.png" />
                    {%endif%}
                    
                    <input type="hidden" value="{{comment_id}}" name="commentid" class="commentid" id="id_commentid">
@@ -56,22 +56,38 @@
 </div>
 <script>
 $(document).ready(function(){
+    var csrf_token = '';
+    var comment_id = '';
     $(".red_flag").click(function(event){
         //alert('mark for comment_id: '+$(this).parent().find("input[name=commentid]").val())
         console.log($(this).parent().find("input[name=commentid]").val())
-        mark_as_read()
+        csrf_token = $("input[name=\"id_csrfmiddlewaretoken\"").val();
+        comment_id = $(this).parent().find("input[name=commentid]").val();
+        mark_as_read($(this))
     });
     
+    /*
     function mark_as_read() {
-        $.post("/message/mark_message_unread/",
-        {
-            csrfmiddlewaretoken: $("input[name='id_csrfmiddlewaretoken").val(),
-            commentid: $(this).parent().find("input[name=commentid]").val()
+        $.get('/message/mark_message_unread/',{
+                commentid: $(this).parent().find("input[name=commentid]").val()
+            }, function(data) {
+            alert('check console.');
+            console.log(data)
+        }, "json");
+    }
+    */
+    
+    function mark_as_read(object) {
+        $.post("/message/mark_message_unread/", {
+            var: 'test',
+            csrfmiddlewaretoken: csrf_token,
+            commentid: comment_id
         },function(data) {
-            /*success*/
+            object.fadeOut()
             console.log(data)
         },'json');
     }
+    
     
     /**
     Simple form validation.

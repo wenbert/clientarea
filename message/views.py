@@ -313,7 +313,6 @@ def by_category(request,groupid ,categoryid):
     }
     return render_to_response('message/by_category.html', data,context_instance=RequestContext(request))
     
-@login_required
 def mark_message_unread(request):
     """
     Mark a single message/post as read.
@@ -326,9 +325,10 @@ def mark_message_unread(request):
         if form.is_valid():
             commentid = form.cleaned_data['commentid']
             
-            post = get_object_or_404(Post, id=commentid)
-            #unread = Unread.objects.get(post=Post,user=request.user)
-            unread = get_object_or_404(Unread, post=Post,user=request.user)
+            post = get_object_or_404(Post, id=commentid,is_comment=1)
+            
+            unread = get_object_or_404(Unread, post=post,user=request.user)
+            
             if not unread.marked_read_on:
                 unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
                 unread.save()
