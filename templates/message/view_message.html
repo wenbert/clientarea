@@ -14,21 +14,40 @@
     </p>
 </div>
 <div class="span-24 last">
-    <div  id="dialog">
-    <form action="/message/post_message/{{message.group.id}}?postid={{message.id}}" method="POST">
-    {% csrf_token %}
-    <table class="comment_form_table">
-    {{commentform.as_table}}
-    </table>
-    <input type="submit" id="save_button" value="Post reply"/>
-    </form>
-    subscribed_members: 
-    {%for member in subscribed_members%}
-        {{member.user}}
-    {%endfor%}
-    <hr/>
-    groupmembersform:
-    {{groupmembersform.as_p}}
+    <div class="cornerBox">
+        <div class="corner TL"></div>
+        <div class="corner TR"></div>
+        <div class="corner BL"></div>
+        <div class="corner BR"></div>
+        <div class="cornerBoxInner">
+            {{groupmembersform}}
+            * will use ajax. add/delete to Unread model when the checkboxes are checked/unchecked<br/>
+            * make sure you also add/delete user_ids to the hidden list in the comment form below
+            
+        </div>
+    </div>
+</div>
+<div class="span-24 last">
+    &nbsp;
+</div>   
+<div class="span-24 last">
+    <div class="cornerBox">
+        <div class="corner TL"></div>
+        <div class="corner TR"></div>
+        <div class="corner BL"></div>
+        <div class="corner BR"></div>
+        <div class="cornerBoxInner">
+            <div  id="dialog">
+            <form action="/message/post_message/{{message.group.id}}?postid={{message.id}}" method="POST">
+            {% csrf_token %}
+            <table class="comment_form_table">
+            {{commentform.as_table}}
+            </table>
+            <input type="submit" id="save_button" value="Post reply"/>
+            </form>
+            
+            </div>
+        </div>
     </div>
 </div>
 <div class="span-24 last">

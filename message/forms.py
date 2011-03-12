@@ -14,10 +14,15 @@ class AddCommentForm(forms.Form):
     title = forms.CharField(max_length=250)
     groupid = forms.CharField(widget=forms.HiddenInput) 
     body = forms.CharField(widget=forms.Textarea)
+    users = forms.MultipleChoiceField(widget=forms.MultipleHiddenInput,
+                                    required=False)    
     
 class CommentIdForm(forms.Form):
     commentid = forms.CharField(widget=forms.HiddenInput)
     commentid.widget.attrs['class'] = 'commentid'
     
-class GroupMembersForm(forms.Form):
-    users = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,label="Notify and subscribe users to this post:")    
+class GroupMembersCheckboxForm(forms.Form):
+    users = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                    label="Notify and subscribe users to this post:",
+                                    required=False)    
+                              

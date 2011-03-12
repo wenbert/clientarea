@@ -74,10 +74,7 @@ def post_message(request, groupid):
         
         """user list for this group"""
         form.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
-            
-        
-        
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]    
         
         if form.is_valid():
             title = form.cleaned_data['title']
@@ -121,7 +118,30 @@ def post_message(request, groupid):
                 comment.save()                    
             else:
                 pass
+            
+            """
+            User IDs that are selected in the form
+            This must be a "post message"?
+            """
+            if is_comment:
+                #userlist = [(x.user_id) for x in Unread.objects.filter(post=message)]
+                userlist = [1]
+            else:
+                userlist = request.POST.getlist('users')    
+            for u in userlist:
+                unread = Unread()
+                unread.user = User.objects.get(id=u)
+                unread.post = post
+                unread.category = category
                 
+                if request.user.id == u:
+                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+                    
+                if is_comment:
+                    unread.comment = comment
+                    
+                unread.save()
+            
             """
             Get all users in the group an save to Unread model
             """
@@ -140,33 +160,14 @@ def post_message(request, groupid):
                     unread.comment = comment
                 
                 unread.save()
-            """
-                
-            """
-            User IDs that are selected in the form
-            """
-            userlist = request.POST.getlist('users')    
-            for u in userlist:
-                unread = Unread()
-                unread.user = User.objects.get(id=u)
-                unread.post = post
-                unread.category = category
-                
-                if request.user.id == u:
-                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ' )
-                    
-                if is_comment:
-                    unread.comment = comment
-                    
-                unread.save()    
-                
+            """    
                 
             success = True
-            
         else:
             """form is not valid"""
             userlist = request.POST.getlist('users')
-                
+            success = False
+            raise xxx
     else:
         form = AddMessageForm(
                 initial={'groupname': custgroup.name,
@@ -252,30 +253,19 @@ def view(request, messageid):
         no_unread = False
     except ObjectDoesNotExist:
         pass
-    
-    """Get groupmembers and make initial data from Unread model"""
-    groupmembersform = GroupMembersForm(
-                        initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],}
-                        )
-    groupmembersform.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
             
-    """Get users subscribed to this message"""
-    try:
-        subscribed_members = Unread.objects.filter(post=message)
-        
-    except ObjectDoesNotExist:
-        pass
         
     commentform = AddCommentForm(
             initial={'postid': message.id,
                     'groupname': custgroup.name,
                     'groupid': message.group_id,
                     'category': message.category_id,
-                    'groupmembersform': groupmembersform,
+                    "users": [(x.user_id) for x in Unread.objects.filter(post=message)],
                 }
         )
-        
+    commentform.fields['users'].choices = \
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+                
     comments = Comment.objects.filter(post=message).order_by('-comment__published')
     #comments = Unread.objects.filter(post=message)
     all_comments = []
@@ -296,13 +286,20 @@ def view(request, messageid):
                             c.comment.published, c.comment.body)]
     
    
+    """Get groupmembers and make initial data from Unread model"""
+    #groupmembersform = GroupMembersForm(initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],})
+    #groupmembersform = GroupMembersForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
+    groupmembersform = GroupMembersCheckboxForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
+    groupmembersform.fields['users'].choices = \
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+    
     
     data = {
             'commentform': commentform,
             'message': message,
             'comments': comments,
             'all_comments': all_comments,
-            'subscribed_members': subscribed_members,
+            'groupmembersform': groupmembersform,
         }
     return render_to_response('message/view_message.html', data,context_instance=RequestContext(request))
     
