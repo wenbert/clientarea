@@ -44,6 +44,7 @@ def post_message(request, groupid):
     is_comment = False
     categoryid = request.GET.get('categoryid')
     postid= request.GET.get('postid')
+    userlist = []
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -62,8 +63,8 @@ def post_message(request, groupid):
     except ObjectDoesNotExist:
         pass
     
-    
     if request.method == 'POST':
+        
         form = AddMessageForm(request.POST,
                     initial={'groupname': custgroup.name,'groupid': groupid}
                )
@@ -71,13 +72,27 @@ def post_message(request, groupid):
         form.fields['category'].choices = \
                 [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
         
+        """user list for this group"""
+        form.fields['users'].choices = \
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+            
+        
+        
+        
         if form.is_valid():
             title = form.cleaned_data['title']
             body = form.cleaned_data['body']
             groupid = form.cleaned_data['groupid']
             category = Category.objects.get(id=form.cleaned_data['category'])
             user =  request.user
-                    
+            
+            
+            """
+            need to loop thru userlist and email to the users
+            OR we can do the save after the POST save
+            """
+            #print  userlist
+            
             #check if postid exists
             try:
                 message = Post.objects.get(id=postid)
@@ -110,6 +125,7 @@ def post_message(request, groupid):
             """
             Get all users in the group an save to Unread model
             """
+            """
             groupusers = User.objects.filter(groups__name=custgroup.name)
             for g in groupusers:
                 unread = Unread()
@@ -124,31 +140,65 @@ def post_message(request, groupid):
                     unread.comment = comment
                 
                 unread.save()
+            """
+                
+            """
+            User IDs that are selected in the form
+            """
+            userlist = request.POST.getlist('users')    
+            for u in userlist:
+                unread = Unread()
+                unread.user = User.objects.get(id=u)
+                unread.post = post
+                unread.category = category
+                
+                if request.user.id == u:
+                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ' )
+                    
+                if is_comment:
+                    unread.comment = comment
+                    
+                unread.save()    
+                
+                
             success = True
             
+        else:
+            """form is not valid"""
+            userlist = request.POST.getlist('users')
+                
     else:
         form = AddMessageForm(
-                initial={'groupname': custgroup.name,'groupid': groupid},
+                initial={'groupname': custgroup.name,
+                        'groupid': groupid,
+                        "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],
+                    },
             )
         
+        """user list for this group"""
+        form.fields['users'].choices = \
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+        
+            
         if(categoryid):
             form.fields['category'].choices = \
                 [(x.id, x.name) for x in Category.objects.filter(id=categoryid)]
         else:
             form.fields['category'].choices = \
                 [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
+                
+        
 
     data = {
             "groupid": groupid,
             'categoryid': categoryid,
             "groupname": custgroup.name,
             "form": form,
+            "userlist":userlist,
         }
         
     if success:
         messages.add_message(request, messages.SUCCESS, 'Message was successfuly posted.')
-        #return HttpResponseRedirect('/message/dashboard') 
-        #return HttpResponseRedirect("/message/view/%s" % (post.id),data, context_instance=RequestContext(request)) 
         if is_comment:
             return HttpResponseRedirect("/message/view/%s" % (message.id)) 
         else:
@@ -168,12 +218,14 @@ def view(request, messageid):
     """
     View a message.
     """
+    subscribed_members = []
     
     """ do not show a message to a client"""
     if request.user.userprofile.is_client:
         return render_to_response('404.html')
     
     error = None
+    
     """
     not really an error but from the ?error=1
     1 => "Please fill out all the required fields."
@@ -200,12 +252,27 @@ def view(request, messageid):
         no_unread = False
     except ObjectDoesNotExist:
         pass
+    
+    """Get groupmembers and make initial data from Unread model"""
+    groupmembersform = GroupMembersForm(
+                        initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],}
+                        )
+    groupmembersform.fields['users'].choices = \
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+            
+    """Get users subscribed to this message"""
+    try:
+        subscribed_members = Unread.objects.filter(post=message)
+        
+    except ObjectDoesNotExist:
+        pass
         
     commentform = AddCommentForm(
             initial={'postid': message.id,
                     'groupname': custgroup.name,
                     'groupid': message.group_id,
                     'category': message.category_id,
+                    'groupmembersform': groupmembersform,
                 }
         )
         
@@ -235,6 +302,7 @@ def view(request, messageid):
             'message': message,
             'comments': comments,
             'all_comments': all_comments,
+            'subscribed_members': subscribed_members,
         }
     return render_to_response('message/view_message.html', data,context_instance=RequestContext(request))
     
