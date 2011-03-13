@@ -42,9 +42,12 @@ def post_message(request, groupid):
     data = {}
     success = False
     is_comment = False
+    error = False
+    
     categoryid = request.GET.get('categoryid')
     postid= request.GET.get('postid')
     userlist = []
+    
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -74,7 +77,7 @@ def post_message(request, groupid):
         
         """user list for this group"""
         form.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]    
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)]    
         
         if form.is_valid():
             title = form.cleaned_data['title']
@@ -124,11 +127,20 @@ def post_message(request, groupid):
             This must be a "post message"?
             """
             if is_comment:
-                #userlist = [(x.user_id) for x in Unread.objects.filter(post=message)]
-                userlist = [1]
+                userlist = [(x.user_id) for x in Unread.objects.filter(post=message)]
+                #userlist = [1]
             else:
                 userlist = request.POST.getlist('users')    
             for u in userlist:
+                """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                TO DO: NEED TO CHECK IF USER ID IS A MEMBER OF THE GROUP!!!
+                """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                #check if user is member of group
+                if custgroup not in Group.objects.filter(user=u):
+                    return render_to_response('404.html')
+                else:
+                    pass
+                    
                 unread = Unread()
                 unread.user = User.objects.get(id=u)
                 unread.post = post
@@ -142,43 +154,24 @@ def post_message(request, groupid):
                     
                 unread.save()
             
-            """
-            Get all users in the group an save to Unread model
-            """
-            """
-            groupusers = User.objects.filter(groups__name=custgroup.name)
-            for g in groupusers:
-                unread = Unread()
-                unread.user = g
-                unread.post = post
-                unread.category = category
-                
-                if request.user == g:
-                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
-                    
-                if is_comment:
-                    unread.comment = comment
-                
-                unread.save()
-            """    
-                
             success = True
         else:
             """form is not valid"""
             userlist = request.POST.getlist('users')
             success = False
-            raise xxx
+            error = True
+            
     else:
         form = AddMessageForm(
                 initial={'groupname': custgroup.name,
                         'groupid': groupid,
-                        "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],
+                        "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)],
                     },
             )
         
         """user list for this group"""
         form.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)]
         
             
         if(categoryid):
@@ -188,8 +181,6 @@ def post_message(request, groupid):
             form.fields['category'].choices = \
                 [(x.id, x.name) for x in Category.objects.filter(group=groupid)]
                 
-        
-
     data = {
             "groupid": groupid,
             'categoryid': categoryid,
@@ -206,6 +197,9 @@ def post_message(request, groupid):
             return HttpResponseRedirect("/message/view/%s" % (post.id)) 
         
     else:
+        if error:
+            messages.add_message(request, messages.ERROR, 'An error occured. Form data was not valid.')
+            
         if postid:
             #return HttpResponseRedirect("/message/view/%s?error=1" % (postid)) 
             return render_to_response("message/view_message.html",
@@ -218,8 +212,13 @@ def post_message(request, groupid):
 def view(request, messageid):
     """
     View a message.
+    * Do not allow "client" to view a message
+    * Check if ?error=1
+    * Get the message
+    * Check if logged in user is member of group
+    * Get users subscribed, etc.
+    * Get all comments. If has unread items, also get the marked_read_on field
     """
-    subscribed_members = []
     
     """ do not show a message to a client"""
     if request.user.userprofile.is_client:
@@ -236,14 +235,14 @@ def view(request, messageid):
         messages.add_message(request, messages.ERROR, 'Please fill out all the required fields.')
     
     message = get_object_or_404(Post, id=messageid)
-    custgroup = Group.objects.get(id=message.group_id)
+    no_unread = True
     
+    custgroup = Group.objects.get(id=message.group_id)
     if custgroup not in request.user.groups.all():
          return render_to_response('404.html')
     else:
         pass 
     
-    no_unread = True
     try:
         unread = Unread.objects.get(user=request.user, post=message)
         if not unread.marked_read_on:
@@ -254,26 +253,30 @@ def view(request, messageid):
     except ObjectDoesNotExist:
         pass
             
-        
+    userchoices = [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)]    
+    usersinunread = [(x.user_id) for x in Unread.objects.filter(post=message)]
+   
     commentform = AddCommentForm(
             initial={'postid': message.id,
                     'groupname': custgroup.name,
                     'groupid': message.group_id,
                     'category': message.category_id,
-                    "users": [(x.user_id) for x in Unread.objects.filter(post=message)],
+                    "users": usersinunread,
                 }
         )
-    commentform.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
+        
+    commentform.fields['users'].choices = userchoices
+
+    """Get groupmembers and make initial data from Unread model"""
+    #groupmembersform = GroupMembersForm(initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],})
+    #groupmembersform = GroupMembersForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
+    groupmembersform = GroupMembersCheckboxForm(initial={"users": usersinunread,})
+    groupmembersform.fields['users'].choices = userchoices
                 
     comments = Comment.objects.filter(post=message).order_by('-comment__published')
     #comments = Unread.objects.filter(post=message)
     all_comments = []
-    """
-    for c in comments:
-       all_comments += [(x.id, x.marked_read_on, c.comment) \
-                        for x in c.post.unread_set.filter(post=c.id,user=request.user)]
-    """
+    
     if not no_unread:
         for c in comments:
             all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
@@ -284,16 +287,6 @@ def view(request, messageid):
         for c in comments:
             all_comments += [(c.id, c.comment.id, c.comment.title, c.comment.user, \
                             c.comment.published, c.comment.body)]
-    
-   
-    """Get groupmembers and make initial data from Unread model"""
-    #groupmembersform = GroupMembersForm(initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],})
-    #groupmembersform = GroupMembersForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
-    groupmembersform = GroupMembersCheckboxForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
-    groupmembersform.fields['users'].choices = \
-            [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name)]
-    
-    
     data = {
             'commentform': commentform,
             'message': message,
@@ -342,6 +335,12 @@ def by_group(request, groupid):
 def by_category(request,groupid ,categoryid):
     """
     Displays messages by category.
+    * Do not show to client.
+    * Check if logged in user is member of group.
+    * Get posts based on current category
+    * Iterate posts and get for each post the number of replies, unread, etc.
+    ** Per user and per post
+    ** Slow :-(
     """
     data = {}
     success = False
@@ -350,7 +349,7 @@ def by_category(request,groupid ,categoryid):
     if request.user.userprofile.is_client:
         return render_to_response('404.html')
     
-    #check if user is member of group
+    """check if user is member of group"""
     custgroup = Group.objects.get(id=groupid)
     if custgroup not in request.user.groups.all():
         return render_to_response('404.html')
@@ -406,7 +405,7 @@ def mark_message_unread(request):
     if request.user.userprofile.is_client:
         return render_to_response('404.html')
     
-    if request.method == 'POST':
+    if request.method == 'POST' and request.is_ajax():
         form = CommentIdForm(request.POST)
         if form.is_valid():
             commentid = form.cleaned_data['commentid']
@@ -426,13 +425,20 @@ def mark_message_unread(request):
         pass
 
     if success:
-        results = {
-            "status":"success",
-            "message": "Saved.",
-        }
-        data = json.dumps(results)
-        return HttpResponse(data)
+        if request.is_ajax():
+            results = {
+                "status":"success",
+                "message": "Saved.",
+            }
+            data = json.dumps(results)
+            return HttpResponse(data)
+        else:
+            return HttpResponse('Request denied. Not AJAX.')
     else:
-        data = json.dumps({
-            "status":"failed", "error":error, "data":request.POST})
-        return HttpResponse(data)
+        if request.is_ajax():
+            data = json.dumps({
+                "status":"failed", "error":error, "data":request.POST})
+            return HttpResponse(data)
+        else:
+            return HttpResponse('Request denied. Not AJAX.')
+        

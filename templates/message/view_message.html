@@ -10,7 +10,8 @@
 </div>
 <div class="span-24 last">
     <p>
-    {{message.body}}
+        {% load bbcode %}
+        {{message.body|bbcode}}
     </p>
 </div>
 <div class="span-24 last">
@@ -74,7 +75,8 @@
                {{published}} or {{published}} ago
                 </div>
                <p class="comment_p">
-               {{body}}
+               {% load bbcode %}
+               {{body|bbcode}}
                </p>
             </div>
         {%endfor%}

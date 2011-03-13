@@ -17,3 +17,4 @@ REQUIREMENTS:
 3) A database (like MySQL)
 4) Install django-registration (http://bitbucket.org/ubernostrum/django-registration/src/tip/docs/quickstart.rst)
 5) Install django-profiles (http://bitbucket.org/ubernostrum/django-profiles/wiki/Home)
+6) Install Postmarkup (http://code.google.com/p/postmarkup/)
