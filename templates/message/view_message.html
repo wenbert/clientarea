@@ -3,9 +3,14 @@
 <div class="span-24 last">
     <h2>{{message.title}}</h2>
     <div> 
+        {%if user.id == message.user_id or user.is_staff%}
+            <a href="/message/post_message/{{message.group.id}}/?postid={{message.id}}&edit=1" alt="Edit">Edit</a>
+        {%endif%}
+        
         Posted on {{message.published}} or {{message.published|timesince}} ago by: <a href="/profiles/{{message.user}}">{{message.user}}</a> 
         under 
-        <a href="/message/cat/{{message.group.id}}/{{message.category.id}}">{{message.category}}</a>
+        <a href="/message/cat/{{message.group.id}}/{{message.category.id}}">{{message.category}}</a> 
+        
     </div>
 </div>
 <div class="span-24 last">
@@ -80,6 +85,8 @@
                </p>
             </div>
         {%endfor%}
+    {%else%}
+    This message has no replies.
     {%endif%}
 </div>
 <script>

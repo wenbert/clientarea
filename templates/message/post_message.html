@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="span-24 last">
-    <h2>Post a message to {{groupname}}</h2>
+    <h2>
+        {%if edit = '1' %}
+        Edit message
+        {%else%}
+        Post a message to {{groupname}}
+        {%endif%}
+        
+    </h2>
 </div>
 <div class="span-24 last">
     <form action="/message/post_message/{{groupid}}" method="POST">

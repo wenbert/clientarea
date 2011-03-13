@@ -46,7 +46,9 @@ def post_message(request, groupid):
     
     categoryid = request.GET.get('categoryid')
     postid= request.GET.get('postid')
+    edit = request.GET.get('edit')
     userlist = []
+    message_body = ''
     
     
     #check if user is member of group
@@ -132,10 +134,6 @@ def post_message(request, groupid):
             else:
                 userlist = request.POST.getlist('users')    
             for u in userlist:
-                """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-                TO DO: NEED TO CHECK IF USER ID IS A MEMBER OF THE GROUP!!!
-                """""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-                #check if user is member of group
                 if custgroup not in Group.objects.filter(user=u):
                     return render_to_response('404.html')
                 else:
@@ -162,12 +160,31 @@ def post_message(request, groupid):
             error = True
             
     else:
-        form = AddMessageForm(
-                initial={'groupname': custgroup.name,
-                        'groupid': groupid,
-                        "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)],
-                    },
-            )
+
+        if postid and edit=='1':
+            try:
+                target_message = Post.objects.get(id=postid)
+                form = AddMessageForm(
+                    initial={'groupname': custgroup.name,
+                            'groupid': groupid,
+                            "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)],
+                            "title": target_message.title,
+                            "body":target_message.body,
+                            'category': target_message.category_id,    
+                        },
+                )
+            except ObjectDoesNotExist:
+                pass
+        else:
+            form = AddMessageForm(
+                    initial={'groupname': custgroup.name,
+                            'groupid': groupid,
+                            "users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)],
+                        },
+                )
+            
+                
+        
         
         """user list for this group"""
         form.fields['users'].choices = \
@@ -187,6 +204,7 @@ def post_message(request, groupid):
             "groupname": custgroup.name,
             "form": form,
             "userlist":userlist,
+            "edit":edit,
         }
         
     if success:
@@ -199,12 +217,19 @@ def post_message(request, groupid):
     else:
         if error:
             messages.add_message(request, messages.ERROR, 'An error occured. Form data was not valid.')
+        
+        if edit == '1' and postid:    
             
-        if postid:
+            return render_to_response("message/post_message.html",
+                          data, context_instance=RequestContext(request))
+                          
+        if postid and edit != '1':
+            
             #return HttpResponseRedirect("/message/view/%s?error=1" % (postid)) 
             return render_to_response("message/view_message.html",
                           data, context_instance=RequestContext(request))
         else:    
+            
             return render_to_response("message/post_message.html",
                           data, context_instance=RequestContext(request))
 
