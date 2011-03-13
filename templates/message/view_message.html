@@ -27,8 +27,9 @@
         <div class="corner BR"></div>
         <div class="cornerBoxInner">
             {{groupmembersform}}
-            * will use ajax. add/delete to Unread model when the checkboxes are checked/unchecked<br/>
-            * make sure you also add/delete user_ids to the hidden list in the comment form below
+            {%if user.id == message.user_id or user.is_staff%}
+                <a href="/message/post_message/{{message.group.id}}/?postid={{message.id}}&edit=1#users" alt="Edit">Edit</a>
+            {%endif%}
             
         </div>
     </div>

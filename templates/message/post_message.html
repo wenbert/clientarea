@@ -14,8 +14,17 @@
     <form action="/message/post_message/{{groupid}}" method="POST">
     {% csrf_token %}
     {{form.as_p}}
-    <input type="submit" id="save_button" value="Post this message"/>
+    {%if edit = '1' %}
+        <input type="submit" id="save_button" value="Update this message"/>
+    {%else%}
+        <input type="submit" id="save_button" value="Post this message"/>
+    {%endif%}
+    <input type="hidden" name="edit" value="{{edit}}" />
+    <input type="hidden" name="postid" value="{{postid}}" />
     </form>
-    userlist: {{userlist}}
+    <a name="users">&nbsp;</a>
+    userlist: {{userlist}}<br/>
+    edit: {{edit}}<br/>
+    postid: {{postid}}<br/>
 </div>
 {% endblock %}

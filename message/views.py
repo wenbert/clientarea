@@ -89,15 +89,11 @@ def post_message(request, groupid):
             user =  request.user
             
             
-            """
-            need to loop thru userlist and email to the users
-            OR we can do the save after the POST save
-            """
-            #print  userlist
-            
-            #check if postid exists
+            """check if postid exists"""
             try:
+                
                 message = Post.objects.get(id=postid)
+                
                 post = Post(
                     title=title, 
                     body=body, 
@@ -107,7 +103,10 @@ def post_message(request, groupid):
                     is_comment = 1
                     )
                 is_comment = True
+                post.save()
+                    
             except ObjectDoesNotExist:
+                
                 post = Post(
                     title=title, 
                     body=body, 
@@ -115,8 +114,9 @@ def post_message(request, groupid):
                     category=category,
                     user=user,)
                 is_comment = False
+                post.save()
                 
-            post.save()
+            
             
             if is_comment:
                 comment = Comment(post=message,comment=post)
@@ -133,6 +133,7 @@ def post_message(request, groupid):
                 #userlist = [1]
             else:
                 userlist = request.POST.getlist('users')    
+                
             for u in userlist:
                 if custgroup not in Group.objects.filter(user=u):
                     return render_to_response('404.html')
@@ -205,6 +206,7 @@ def post_message(request, groupid):
             "form": form,
             "userlist":userlist,
             "edit":edit,
+            "postid":postid,
         }
         
     if success:

@@ -21,7 +21,8 @@ class Post(models.Model):
     title = models.CharField(max_length=250)
     #slug = models.SlugField(max_length=250, unique=True)
     body = models.TextField()
-    published = models.DateTimeField(default=datetime.now)
+    published = models.DateTimeField(null=True, blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
     category = models.ForeignKey(Category)
     group = models.ForeignKey(Group)
     user = models.ForeignKey(User)
@@ -34,6 +35,12 @@ class Post(models.Model):
     #    if not self.id:
     #        self.slug = slugify( self.title )
     #    super(Post, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        if not self.id:
+            self.published = datetime.now()
+        self.updated = datetime.now()
+        super(Post, self).save(*args, **kwargs)
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comment_parent')
