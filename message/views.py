@@ -33,6 +33,9 @@ def allmessages(request):
                           
                                                 
 def post_message(request, groupid):
+    """
+    I created a mess and I need to clean this up. 
+    """
     
     """ do not show a message to a client"""
     if request.user.userprofile.is_client:
@@ -49,7 +52,9 @@ def post_message(request, groupid):
     edit = request.GET.get('edit')
     userlist = []
     message_body = ''
-    
+    target_id = 0
+    update_only = False
+    create_new = False
     
     #check if user is member of group
     custgroup = Group.objects.get(id=groupid)
@@ -87,26 +92,50 @@ def post_message(request, groupid):
             groupid = form.cleaned_data['groupid']
             category = Category.objects.get(id=form.cleaned_data['category'])
             user =  request.user
-            
+                
             
             """check if postid exists"""
-            try:
+            try:    
+                """the POST postid is from the edit form :P"""
+                if request.POST.get('postid') == 'None':
+                    target_id = 0
+                else:
+                    target_id = request.POST.get('postid')
                 
-                message = Post.objects.get(id=postid)
-                
-                post = Post(
-                    title=title, 
-                    body=body, 
-                    group=custgroup, 
-                    category=category,
-                    user=user,
-                    is_comment = 1
+                """
+                we try to check if target_id really exists
+                but we also make sure that POST is_comment is not 1 - because comments have parent ids!
+                """
+                if request.POST.get('is_comment') != '1':
+                    post = Post.objects.get(id=target_id)
+                    post.title = title
+                    post.body = body
+                    post.group = custgroup
+                    post.category = category
+                    post.user = user
+                    update_only = True
+                else:
+                    pass
+                        
+                """gikan ni sa comment"""
+                if update_only is False:
+                    """get the parent for the comment"""
+                    message = Post.objects.get(id=postid)            
+                    post = Post(
+                        title='test', 
+                        body=body, 
+                        group=custgroup, 
+                        category=category,
+                        user=user,
+                        is_comment = 1
                     )
-                is_comment = True
-                post.save()
+                    post.is_comment = 1
+                    is_comment = True
+                    create_new = True #kay new comment then we need to associate the new comments to the users
                     
+                post.save()    
             except ObjectDoesNotExist:
-                
+                """a normal post message"""
                 post = Post(
                     title=title, 
                     body=body, 
@@ -114,9 +143,8 @@ def post_message(request, groupid):
                     category=category,
                     user=user,)
                 is_comment = False
+                create_new = True
                 post.save()
-                
-            
             
             if is_comment:
                 comment = Comment(post=message,comment=post)
@@ -133,26 +161,28 @@ def post_message(request, groupid):
                 #userlist = [1]
             else:
                 userlist = request.POST.getlist('users')    
-                
-            for u in userlist:
-                if custgroup not in Group.objects.filter(user=u):
-                    return render_to_response('404.html')
-                else:
-                    pass
-                    
-                unread = Unread()
-                unread.user = User.objects.get(id=u)
-                unread.post = post
-                unread.category = category
-                
-                if request.user.id == u:
-                    unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
-                    
-                if is_comment:
-                    unread.comment = comment
-                    
-                unread.save()
             
+            """this means that edit ni. yes i know we need to do a better job of determining asa gikan ang post"""
+            if create_new is True:    
+                for u in userlist:
+                    if custgroup not in Group.objects.filter(user=u):
+                        return render_to_response('404.html')
+                    else:
+                        pass
+                        
+                    unread = Unread()
+                    unread.user = User.objects.get(id=u)
+                    unread.post = post
+                    unread.category = category
+                    
+                    if request.user.id == u:
+                        unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+                        
+                    if is_comment:
+                        unread.comment = comment
+                        
+                    unread.save()
+                
             success = True
         else:
             """form is not valid"""
@@ -161,7 +191,8 @@ def post_message(request, groupid):
             error = True
             
     else:
-
+        """Not a POST, show the forms!"""
+        
         if postid and edit=='1':
             try:
                 target_message = Post.objects.get(id=postid)
@@ -184,9 +215,6 @@ def post_message(request, groupid):
                         },
                 )
             
-                
-        
-        
         """user list for this group"""
         form.fields['users'].choices = \
             [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)]
