@@ -27,10 +27,13 @@
         <div class="corner BR"></div>
         <div class="cornerBoxInner">
             {{groupmembersform}}
-            {%if user.id == message.user_id or user.is_staff%}
-                <a href="/message/post_message/{{message.group.id}}/?postid={{message.id}}&edit=1#users" alt="Edit">Edit</a>
-            {%endif%}
-            
+            Subscribed Users:
+            <ul>
+            {%for x in subscribed_users%}
+                <li>{{x}}</li>
+            {%endfor%}
+            </ul>
+            <a href="/message/post_message/{{message.group.id}}/?postid={{message.id}}&edit=1#users" alt="Edit">Edit</a>
         </div>
     </div>
 </div>

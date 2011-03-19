@@ -26,3 +26,8 @@ class GroupMembersCheckboxForm(forms.Form):
                                     label="Notify and subscribe users to this post:",
                                     required=False)    
                               
+class GroupMembersHiddenForm(forms.Form):
+    users = forms.MultipleChoiceField(widget=forms.MultipleHiddenInput,
+                                    label="Notify and subscribe users to this post:",
+                                    required=False)  
+                              

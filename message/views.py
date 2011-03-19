@@ -113,6 +113,7 @@ def post_message(request, groupid):
                     post.group = custgroup
                     post.category = category
                     post.user = user
+                    post.updated = datetime.now()
                     update_only = True
                 else:
                     pass
@@ -182,7 +183,48 @@ def post_message(request, groupid):
                         unread.comment = comment
                         
                     unread.save()
+            else:
+                """
+                not a new entry. userlist came from the Checkboxes in the form
+                Add anything in userlist (POST) not existing in Unread
+                Delete anything in Unread not found in userlist (POST)
+                """
+                for u in userlist:
+                    if custgroup not in Group.objects.filter(user=u):
+                        return render_to_response('404.html')
+                    else:
+                        pass
+                        
+                currently_subscribed_users = [(x.user_id) for x in Unread.objects.filter(post=post)]
                 
+                
+                """loop Unread and if not found in userlist, delete from Unread"""
+                for ux in currently_subscribed_users:
+                    if ux is not None and ux not in userlist:
+                        #if ux not in userlist:
+                        userx=User.objects.get(id=ux)
+                        unreadx = Unread.objects.filter(post=post, user=userx)
+                        #unread.user = User.objects.get(id=ux)
+                        unreadx.delete()
+                        
+                """loop userlist and if not in Unread, add to Unread"""
+                for u in userlist:
+                    if u not in currently_subscribed_users:
+                        unread = Unread()
+                        unread.user = User.objects.get(id=u)
+                        unread.post = post
+                        unread.category = category
+                        
+                        if request.user.id == u:
+                            unread.marked_read_on = datetime.now().replace(microsecond=0).isoformat(' ')
+                            
+                        if is_comment:
+                            unread.comment = comment
+                            
+                        unread.save()
+                
+                
+                        
             success = True
         else:
             """form is not valid"""
@@ -308,8 +350,11 @@ def view(request, messageid):
     except ObjectDoesNotExist:
         pass
             
+    subscribed_users = []
     userchoices = [(x.id, x) for x in User.objects.filter(groups__name=custgroup.name,userprofile__is_client=0)]    
     usersinunread = [(x.user_id) for x in Unread.objects.filter(post=message)]
+    for u in usersinunread:
+        subscribed_users.append(User.objects.get(id=u))
    
     commentform = AddCommentForm(
             initial={'postid': message.id,
@@ -325,7 +370,8 @@ def view(request, messageid):
     """Get groupmembers and make initial data from Unread model"""
     #groupmembersform = GroupMembersForm(initial={"users": [(x.id) for x in User.objects.filter(groups__name=custgroup.name)],})
     #groupmembersform = GroupMembersForm(initial={"users": [(x.user_id) for x in Unread.objects.filter(post=message)],})
-    groupmembersform = GroupMembersCheckboxForm(initial={"users": usersinunread,})
+    #groupmembersform = GroupMembersCheckboxForm(initial={"users": usersinunread,})
+    groupmembersform = GroupMembersHiddenForm(initial={"users": usersinunread,})
     groupmembersform.fields['users'].choices = userchoices
                 
     comments = Comment.objects.filter(post=message).order_by('-comment__published')
@@ -348,6 +394,7 @@ def view(request, messageid):
             'comments': comments,
             'all_comments': all_comments,
             'groupmembersform': groupmembersform,
+            'subscribed_users': subscribed_users,
         }
     return render_to_response('message/view_message.html', data,context_instance=RequestContext(request))
     

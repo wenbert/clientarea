@@ -23,6 +23,7 @@ class Post(models.Model):
     body = models.TextField()
     published = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
+    updated_by = models.ForeignKey(User, related_name='updated_by',null=True, blank=True)
     category = models.ForeignKey(Category)
     group = models.ForeignKey(Group)
     user = models.ForeignKey(User)
@@ -39,7 +40,7 @@ class Post(models.Model):
         ''' On save, update timestamps '''
         if not self.id:
             self.published = datetime.now()
-        self.updated = datetime.now()
+        #self.updated = datetime.now()
         super(Post, self).save(*args, **kwargs)
 
 class Comment(models.Model):
