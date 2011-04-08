@@ -24,6 +24,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django.db.models import Avg,Count
 from django.db import connection
+from django.core.mail import send_mail
 
 @login_required  
 def allmessages(request):
@@ -31,7 +32,7 @@ def allmessages(request):
     return render_to_response("message/dashboard.html",
                           data, context_instance=RequestContext(request))
                           
-                                                
+@login_required                                               
 def post_message(request, groupid):
     """
     I created a mess and I need to clean this up. 
@@ -74,6 +75,12 @@ def post_message(request, groupid):
         pass
     
     if request.method == 'POST':
+        
+        """
+        Send mail example...
+        TODO
+        """
+        send_mail('Subject', 'Message.', 'from@example.com',['john@example.com', 'jane@example.com'])
         
         form = AddMessageForm(request.POST,
                     initial={'groupname': custgroup.name,'groupid': groupid}
