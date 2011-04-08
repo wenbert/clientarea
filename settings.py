@@ -98,6 +98,7 @@ INSTALLED_APPS = (
     'home',
     'accounts',
     'message',
+    'uploadify',
 )
 
 #---------------------------------------
@@ -141,3 +142,7 @@ README_FILE_EXT = '.README'
 
 #TIME_FORMAT used to format the time displayed when browsing the files
 TIME_FORMAT = '%a, %d %b %Y %H:%M:%S'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = './email_tmp' # change this to a proper location
