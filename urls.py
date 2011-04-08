@@ -38,6 +38,7 @@ urlpatterns = patterns('',
     # First match /profiles/edit before django-profiles gets it so we can pass in our custom form object.
     ('^profiles/edit', 'profiles.views.edit_profile', {'form_class': ProfileForm,}),
     (r'^profiles/', include('profiles.urls')),
+    (r'^uploadify/', include('uploadify.urls')),
     
 )
 
